@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ChevronLeft, Trash2, Image as ImageIcon, Video,
@@ -46,6 +46,8 @@ interface PageState {
   headline: string;
   subtitle: string;
   primaryColor: string;
+  secondaryColor: string;
+  fontFamily: string;
   sections: Section[];
 }
 
@@ -54,6 +56,8 @@ const DEFAULT_STATE: PageState = {
   headline: '',
   subtitle: '',
   primaryColor: '#002068',
+  secondaryColor: '#525d85',
+  fontFamily: "'Manrope', sans-serif",
   sections: [],
 };
 
@@ -87,7 +91,13 @@ function toBackendPage(state: PageState): BackendPage {
         };
       }),
     ],
-    general_props: { styles: { primaryColor: state.primaryColor } },
+    general_props: {
+      styles: {
+        primaryColor: state.primaryColor,
+        secondaryColor: state.secondaryColor,
+        fontFamily: state.fontFamily,
+      },
+    },
   };
 }
 
@@ -106,12 +116,18 @@ function fromBackendPage(page: BackendPage, fallback: { name: string; descriptio
     }))
     // La sección Métricas siempre queda anclada al frente, debajo de la portada.
     .sort((a, b) => Number(isMetrics(b)) - Number(isMetrics(a)));
-  const styles = (page.general_props?.styles ?? {}) as { primaryColor?: string };
+  const styles = (page.general_props?.styles ?? {}) as {
+    primaryColor?: string;
+    secondaryColor?: string;
+    fontFamily?: string;
+  };
   return {
     coverImage: (hero?.props.url as string) ?? '',
     headline: (hero?.props.headline as string) ?? fallback.name,
     subtitle: (hero?.props.subtitle as string) ?? fallback.description,
     primaryColor: styles.primaryColor ?? '#002068',
+    secondaryColor: styles.secondaryColor ?? '#525d85',
+    fontFamily: styles.fontFamily ?? "'Manrope', sans-serif",
     sections,
   };
 }
