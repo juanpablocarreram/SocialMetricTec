@@ -598,6 +598,43 @@ export default function Editor() {
             </div>
 
             <div>
+              <h3 className="text-[10px] font-extrabold text-outline uppercase tracking-[0.2em] mb-3">Paleta</h3>
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg border border-outline-variant/20 flex-shrink-0" style={{ backgroundColor: state.primaryColor }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-bold text-primary">Primario</div>
+                    <div className="text-[10px] font-mono text-outline">{state.primaryColor}</div>
+                  </div>
+                  <input
+                    type="color"
+                    value={state.primaryColor}
+                    onChange={(e) => setState((p) => ({ ...p, primaryColor: e.target.value }))}
+                    className="w-7 h-7 rounded-lg cursor-pointer border-none bg-transparent p-0 flex-shrink-0"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg border border-outline-variant/20 flex-shrink-0" style={{ backgroundColor: state.secondaryColor }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-bold text-primary">Secundario</div>
+                    <div className="text-[10px] font-mono text-outline">{state.secondaryColor}</div>
+                  </div>
+                  <input
+                    type="color"
+                    value={state.secondaryColor}
+                    onChange={(e) => setState((p) => ({ ...p, secondaryColor: e.target.value }))}
+                    className="w-7 h-7 rounded-lg cursor-pointer border-none bg-transparent p-0 flex-shrink-0"
+                  />
+                </div>
+                <div className="h-px bg-outline-variant/10" />
+                <FontCarousel
+                  value={state.fontFamily}
+                  onChange={(css) => setState((p) => ({ ...p, fontFamily: css }))}
+                />
+              </div>
+            </div>
+
+            <div>
               <h3 className="text-[10px] font-extrabold text-outline uppercase tracking-[0.2em] mb-3">Añadir sección</h3>
               <div className="grid grid-cols-2 gap-2">
                 {(Object.keys(SECTION_META) as SectionType[])
@@ -668,10 +705,6 @@ export default function Editor() {
                     className="w-full text-xl text-white/80 bg-transparent border-none outline-none placeholder:text-white/20 font-light"
                   />
                 </div>
-              </div>
-              <div className="absolute top-4 right-4 flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2">
-                <span className="text-white/60 text-[10px] font-bold uppercase tracking-widest">Color</span>
-                <input type="color" value={state.primaryColor} onChange={(e) => setState((p) => ({ ...p, primaryColor: e.target.value }))} className="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent" />
               </div>
             </div>
 
