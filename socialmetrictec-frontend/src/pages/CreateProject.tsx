@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -7,11 +7,12 @@ import {
   Sparkles,
   ArrowRight,
   Loader2,
+  AlertCircle,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { createProject, formatArea } from '@/src/services/projectService';
 import { useProject } from '../context/ProjectContext';
-import UploadButton from '../components/UploadButton';
+import { uploadMediaStandalone } from '@/src/services/mediaService';
 
 const STRATEGIC_AREAS = [
   { label: 'Fin de la pobreza',             value: 'ods_1',  img: '/sdg/ods-1.jpg' },
@@ -41,6 +42,25 @@ export default function CreateProject() {
   const { setCurrentProject } = useProject();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState('');
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    setImageUploadError('');
+    try {
+      const { url } = await uploadMediaStandalone(file);
+      setFormData((prev) => ({ ...prev, image: url }));
+    } catch {
+      setImageUploadError('No se pudo subir la imagen.');
+    } finally {
+      setImageUploading(false);
+      e.target.value = '';
+    }
+  };
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -188,20 +208,31 @@ export default function CreateProject() {
                 <label className="text-[10px] font-bold text-outline uppercase tracking-widest">
                   Imagen de Presentación
                 </label>
-                <div className="group relative aspect-[4/3] rounded-[24px] overflow-hidden bg-surface-container-low border-2 border-dashed border-outline-variant/30 flex items-center justify-center transition-all hover:border-primary/50">
+                <div
+                  onClick={() => !imageUploading && imageInputRef.current?.click()}
+                  className={cn(
+                    'group relative aspect-[4/3] rounded-[24px] overflow-hidden bg-surface-container-low border-2 border-dashed border-outline-variant/30 flex items-center justify-center transition-all hover:border-primary/50',
+                    !formData.image && 'cursor-pointer',
+                  )}
+                >
                   {formData.image ? (
                     <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
                     <div className="flex flex-col items-center gap-4 text-center px-6">
                       <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                        <CloudUpload className="w-8 h-8" />
+                        {imageUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <CloudUpload className="w-8 h-8" />}
                       </div>
                       <div>
                         <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">
-                          Sube una imagen o pega una URL
+                          {imageUploading ? 'Subiendo...' : 'Haz clic para subir o pega una URL'}
                         </p>
                         <p className="text-[10px] text-outline font-medium">Recomendado: 1200x800px</p>
                       </div>
+                    </div>
+                  )}
+                  {imageUploading && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center">
+                      <Loader2 className="w-10 h-10 text-primary animate-spin" />
                     </div>
                   )}
                   <input
@@ -209,14 +240,22 @@ export default function CreateProject() {
                     placeholder="https://..."
                     className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md border-none rounded-xl py-2 px-4 text-[10px] focus:ring-2 focus:ring-primary outline-none shadow-lg text-outline font-medium"
                     value={formData.image}
+                    onClick={(e) => e.stopPropagation()}
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   />
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleImageFileChange}
+                    className="hidden"
+                  />
                 </div>
-                <UploadButton
-                  label="Subir imagen de portada"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  onUploaded={(url) => setFormData({ ...formData, image: url })}
-                />
+                {imageUploadError && (
+                  <div className="flex items-center gap-1.5 text-error text-[10px] font-bold uppercase tracking-widest">
+                    <AlertCircle className="w-3 h-3" /> {imageUploadError}
+                  </div>
+                )}
               </div>
             </div>
 
