@@ -83,7 +83,7 @@ export default function Home() {
             <div className="w-full aspect-[4/5] bg-surface-container-low rounded-2xl overflow-hidden relative shadow-2xl">
               <img 
                 className="w-full h-full object-cover opacity-90" 
-                src="https://picsum.photos/seed/campus/800/1000" 
+                src="https://tec.mx/sites/default/files/styles/hero_section/public/2025-02/programa-servicio-social-tec-monterrey-v2_0.jpg?itok=tx2A8Tql" 
                 alt="Campus"
                 referrerPolicy="no-referrer"
               />
