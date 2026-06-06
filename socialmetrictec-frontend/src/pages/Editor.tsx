@@ -284,7 +284,11 @@ function SectionCard({ type, onDelete, children }: { type: SectionType; onDelete
   );
 }
 
-function TextSection({ section, onChange }: { section: Section; onChange: (s: Partial<Section>) => void }) {
+function TextSection({ section, onChange, fontFamily }: {
+  section: Section;
+  onChange: (s: Partial<Section>) => void;
+  fontFamily: string;
+}) {
   return (
     <div className="space-y-4">
       <input
@@ -293,6 +297,7 @@ function TextSection({ section, onChange }: { section: Section; onChange: (s: Pa
         onChange={(e) => onChange({ title: e.target.value })}
         placeholder="Título de la sección (opcional)"
         className="w-full text-xl font-bold text-primary bg-transparent border-none outline-none placeholder:text-outline-variant/30"
+        style={{ fontFamily }}
       />
       <div className="h-px bg-outline-variant/10" />
       <textarea
@@ -300,6 +305,7 @@ function TextSection({ section, onChange }: { section: Section; onChange: (s: Pa
         onChange={(e) => onChange({ body: e.target.value })}
         placeholder="Escribe aquí el contenido de esta sección..."
         className="w-full text-base text-on-surface-variant bg-transparent border-none outline-none resize-none leading-relaxed placeholder:text-outline-variant/30"
+        style={{ fontFamily }}
         rows={5}
       />
       <div className="border-l-4 border-primary/20 pl-4">
@@ -308,6 +314,7 @@ function TextSection({ section, onChange }: { section: Section; onChange: (s: Pa
           onChange={(e) => onChange({ quote: e.target.value })}
           placeholder="Cita destacada (opcional)..."
           className="w-full italic text-outline bg-transparent border-none outline-none resize-none placeholder:text-outline-variant/20 text-sm"
+          style={{ fontFamily }}
           rows={2}
         />
       </div>
@@ -547,7 +554,13 @@ export default function Editor() {
             </div>
           </div>
           <div className="bg-white shadow-2xl mx-auto max-w-5xl rounded-2xl overflow-hidden mb-16 ring-1 ring-outline-variant/10">
-            <PagePreview blocks={backendPage.blocks} primaryColor={state.primaryColor} metrics={metrics} />
+            <PagePreview
+              blocks={backendPage.blocks}
+              primaryColor={state.primaryColor}
+              secondaryColor={state.secondaryColor}
+              fontFamily={state.fontFamily}
+              metrics={metrics}
+            />
           </div>
         </div>
       ) : (
@@ -696,6 +709,7 @@ export default function Editor() {
                     onChange={(e) => setState((p) => ({ ...p, headline: e.target.value }))}
                     placeholder="Título del proyecto..."
                     className="w-full text-4xl md:text-6xl font-extrabold text-white bg-transparent border-none outline-none placeholder:text-white/30 tracking-tighter leading-tight"
+                    style={{ fontFamily: state.fontFamily }}
                   />
                   <input
                     type="text"
@@ -703,6 +717,7 @@ export default function Editor() {
                     onChange={(e) => setState((p) => ({ ...p, subtitle: e.target.value }))}
                     placeholder="Subtítulo o descripción breve..."
                     className="w-full text-xl text-white/80 bg-transparent border-none outline-none placeholder:text-white/20 font-light"
+                    style={{ fontFamily: state.fontFamily }}
                   />
                 </div>
               </div>
@@ -742,7 +757,7 @@ export default function Editor() {
                 return (
                   <div key={section.id} id={`section-${section.id}`} className="scroll-mt-[70px]">
                     <SectionCard type={section.type} onDelete={() => removeSection(section.id)}>
-                      {section.type === 'text' && <TextSection section={section} onChange={onChange} />}
+                      {section.type === 'text' && <TextSection section={section} onChange={onChange} fontFamily={state.fontFamily} />}
                       {section.type === 'image' && <ImageSection section={section} onChange={onChange} />}
                       {section.type === 'video' && <VideoSection section={section} onChange={onChange} />}
                       {section.type === 'divider' && <DividerSection />}
