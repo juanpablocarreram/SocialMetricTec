@@ -71,6 +71,101 @@ const SECTION_META: Record<SectionType, { label: string; dot: string; icon: type
 
 const isMetrics = (s: Section) => s.type === 'metrics';
 
+// ─── Font palette ─────────────────────────────────────────────────────────────
+
+const FONTS: { name: string; css: string; label: string }[] = [
+  { name: 'Manrope',             css: "'Manrope', sans-serif",             label: 'Manrope'   },
+  { name: 'Plus Jakarta Sans',   css: "'Plus Jakarta Sans', sans-serif",   label: 'Jakarta'   },
+  { name: 'Bricolage Grotesque', css: "'Bricolage Grotesque', sans-serif", label: 'Bricolage' },
+  { name: 'Syne',                css: "'Syne', sans-serif",                label: 'Syne'      },
+  { name: 'Unbounded',           css: "'Unbounded', sans-serif",           label: 'Unbound.'  },
+  { name: 'Outfit',              css: "'Outfit', sans-serif",              label: 'Outfit'    },
+  { name: 'Raleway',             css: "'Raleway', sans-serif",             label: 'Raleway'   },
+  { name: 'Inter',               css: "'Inter', sans-serif",               label: 'Inter'     },
+  { name: 'Playfair Display',    css: "'Playfair Display', serif",         label: 'Playfair'  },
+  { name: 'Cormorant Garamond',  css: "'Cormorant Garamond', serif",       label: 'Cormorant' },
+  { name: 'Fraunces',            css: "'Fraunces', serif",                 label: 'Fraunces'  },
+  { name: 'DM Serif Display',    css: "'DM Serif Display', serif",         label: 'DM Serif'  },
+  { name: 'Instrument Serif',    css: "'Instrument Serif', serif",         label: 'Instrmt.'  },
+  { name: 'Merriweather',        css: "'Merriweather', serif",             label: 'Merriw.'   },
+  { name: 'Source Code Pro',     css: "'Source Code Pro', monospace",      label: 'Mono'      },
+];
+
+function FontCarousel({ value, onChange }: { value: string; onChange: (css: string) => void }) {
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragScrollLeft = useRef(0);
+
+  const active = FONTS.find((f) => f.css === value) ?? FONTS[0];
+
+  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!carouselRef.current) return;
+    isDragging.current = true;
+    dragStartX.current = e.pageX - carouselRef.current.offsetLeft;
+    dragScrollLeft.current = carouselRef.current.scrollLeft;
+  };
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging.current || !carouselRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    carouselRef.current.scrollLeft = dragScrollLeft.current - (x - dragStartX.current) * 1.4;
+  };
+  const stopDrag = () => { isDragging.current = false; };
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2.5">
+        <div
+          className="w-8 h-8 rounded-lg bg-white border border-outline-variant/20 flex items-center justify-center text-sm font-bold text-primary flex-shrink-0"
+          style={{ fontFamily: active.css }}
+        >
+          Ag
+        </div>
+        <div>
+          <div className="text-[11px] font-bold text-primary">{active.name}</div>
+          <div className="text-[10px] text-outline">Tipografía activa</div>
+        </div>
+      </div>
+      <div className="-mx-1 overflow-hidden">
+        <div
+          ref={carouselRef}
+          className="flex gap-1.5 overflow-x-auto pb-2 px-1 select-none"
+          style={{ scrollbarWidth: 'none', cursor: isDragging.current ? 'grabbing' : 'grab' } as React.CSSProperties}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseLeave={stopDrag}
+          onMouseUp={stopDrag}
+        >
+          {FONTS.map((font) => (
+            <button
+              key={font.name}
+              onClick={() => onChange(font.css)}
+              className={cn(
+                'flex-shrink-0 flex flex-col items-center gap-1 px-2.5 py-2 rounded-xl border-[1.5px] transition-all',
+                value === font.css
+                  ? 'bg-primary border-primary'
+                  : 'bg-white border-outline-variant/20 hover:border-primary/40',
+              )}
+            >
+              <span
+                className={cn('text-lg font-bold leading-none', value === font.css ? 'text-white' : 'text-primary')}
+                style={{ fontFamily: font.css }}
+              >
+                Ag
+              </span>
+              <span className={cn('text-[8px] font-bold uppercase tracking-wide whitespace-nowrap', value === font.css ? 'text-white/60' : 'text-outline')}>
+                {font.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <p className="text-[9px] text-outline/40 text-center mt-0.5">← arrastra para ver más →</p>
+    </div>
+  );
+}
+
 // ─── Serialization ────────────────────────────────────────────────────────────
 
 function toBackendPage(state: PageState): BackendPage {
