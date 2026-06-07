@@ -211,8 +211,12 @@ export default function ProjectDetail() {
         <section className="py-20 bg-white">
           <div className="max-w-5xl mx-auto px-5 sm:px-8">
             <div className="mb-12 text-center">
-              <span className="text-[10px] font-bold text-outline uppercase tracking-[0.3em]">En sus palabras</span>
-              <h2 className="text-3xl font-extrabold text-primary tracking-tighter mt-2">Testimonios</h2>
+              <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--p-secondary)' }}>
+                En sus palabras
+              </span>
+              <h2 className="text-3xl font-extrabold tracking-tighter mt-2" style={{ color: 'var(--p-primary)' }}>
+                Testimonios
+              </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {testimonies.map((t, i) => (
@@ -224,10 +228,18 @@ export default function ProjectDetail() {
                   transition={{ delay: i * 0.07, ease: 'easeOut' }}
                   className="group relative flex flex-col bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-outline-variant/10 hover:border-primary/20 hover:shadow-[0_20px_50px_-25px_rgba(0,32,104,0.3)] transition-all duration-300"
                 >
-                  <span className="absolute top-6 right-7 font-serif text-6xl leading-none text-primary/10 select-none transition-colors group-hover:text-primary/20">&rdquo;</span>
+                  <span
+                    className="absolute top-6 right-7 font-serif text-6xl leading-none select-none"
+                    style={{ color: withOpacity(primaryColor, 0.1) }}
+                  >&rdquo;</span>
 
                   {t.category && (
-                    <span className="self-start text-[9px] font-bold uppercase tracking-[0.2em] bg-primary/5 text-primary px-3 py-1.5 rounded-full mb-5">{t.category}</span>
+                    <span
+                      className="self-start text-[9px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-5"
+                      style={{ backgroundColor: withOpacity(primaryColor, 0.05), color: 'var(--p-primary)' }}
+                    >
+                      {t.category}
+                    </span>
                   )}
 
                   <blockquote className="text-[15px] text-on-surface leading-relaxed flex-grow break-words whitespace-pre-line">{t.content}</blockquote>
@@ -239,8 +251,13 @@ export default function ProjectDetail() {
                   )}
 
                   <figcaption className="flex items-center gap-3 mt-7 pt-6 border-t border-outline-variant/10">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="text-xs font-extrabold text-primary">{(t.display_name ?? t.author_username).slice(0, 2).toUpperCase()}</span>
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                      style={{ backgroundColor: withOpacity(primaryColor, 0.1) }}
+                    >
+                      <span className="text-xs font-extrabold" style={{ color: 'var(--p-primary)' }}>
+                        {(t.display_name ?? t.author_username).slice(0, 2).toUpperCase()}
+                      </span>
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-primary truncate">{t.display_name ?? t.author_username}</p>
