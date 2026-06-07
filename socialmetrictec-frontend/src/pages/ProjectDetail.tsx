@@ -453,7 +453,7 @@ function LeaderCard({ leader, index, primaryColor }: { leader: ProjectLeader; in
                         {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
                         className="flex items-center gap-3 -mx-2 px-2 py-2 rounded-xl text-xs text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors group/contact"
                       >
-                        <span className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center shrink-0 text-primary group-hover/contact:bg-primary group-hover/contact:text-white transition-colors">
+                        <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 group-hover/contact:bg-primary group-hover/contact:text-white transition-colors" style={{ backgroundColor: withOpacity(primaryColor, 0.05), color: primaryColor }}>
                           <Icon className="w-4 h-4" />
                         </span>
                         <span className="truncate font-medium">{value}</span>
@@ -466,7 +466,8 @@ function LeaderCard({ leader, index, primaryColor }: { leader: ProjectLeader; in
 
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="mt-5 self-start inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:gap-2.5 transition-all"
+              className="mt-5 self-start inline-flex items-center gap-1.5 text-xs font-bold hover:gap-2.5 transition-all"
+              style={{ color: primaryColor }}
             >
               {expanded ? 'Ver menos' : 'Ver más'}
               <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
