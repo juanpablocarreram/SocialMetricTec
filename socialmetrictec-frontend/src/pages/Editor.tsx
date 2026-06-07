@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ChevronLeft, Trash2, Image as ImageIcon, Video,
-  AlignLeft, Minus, Check, Loader2, Eye, Pencil, GripVertical,
+  AlignLeft, Minus, Check, Loader2, Eye, GripVertical,
   Layout, BarChart3, Camera, MessageSquare, Flag, Type,
 } from 'lucide-react';
 import {
@@ -14,10 +14,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { getProject, savePage, BackendPage } from '@/src/services/pageService';
-import { getMetrics, type MetricOut } from '@/src/services/metricService';
 import { useAuth } from '../context/AuthContext';
 import { useProject } from '../context/ProjectContext';
-import { PagePreview } from '../components/BlockRenderer';
 import NoProjectSelected from '../components/NoProjectSelected';
 import UploadButton from '../components/UploadButton';
 import MetricsManager from '../components/managers/MetricsManager';
@@ -439,8 +437,6 @@ export default function Editor() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [preview, setPreview] = useState(false);
-  const [metrics, setMetrics] = useState<MetricOut[]>([]);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -458,11 +454,6 @@ export default function Editor() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [currentProject?.id]);
-
-  useEffect(() => {
-    if (!currentProject) return;
-    getMetrics(Number(currentProject.id)).then(setMetrics).catch(console.error);
   }, [currentProject?.id]);
 
   const publish = async () => {
@@ -519,7 +510,6 @@ export default function Editor() {
   if (!currentProject) return <NoProjectSelected />;
 
   const projectId = Number(currentProject.id);
-  const backendPage = toBackendPage(state);
   const metricsSection = state.sections.find(isMetrics);
   const contentSections = state.sections.filter((s) => !isMetrics(s));
 
@@ -533,15 +523,8 @@ export default function Editor() {
         <span className="text-sm font-bold text-primary truncate max-w-xs hidden md:block">{projectName}</span>
         <div className="flex items-center gap-3">
           <Link to={`/project/${projectId}`} target="_blank" className="hidden sm:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-outline hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-surface-container-low">
-            <Eye className="w-4 h-4" /> Ver publicado
+            <Eye className="w-4 h-4" /> Vista previa
           </Link>
-          <button
-            onClick={() => setPreview((p) => !p)}
-            className={cn('flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-lg transition-all', preview ? 'bg-primary text-white shadow-sm' : 'text-outline hover:text-primary hover:bg-surface-container-low')}
-          >
-            {preview ? <Pencil className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            <span className="hidden sm:inline">{preview ? 'Editar' : 'Vista previa'}</span>
-          </button>
           <button onClick={publish} disabled={saving} className="flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-60 shadow-lg">
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
             {saved ? 'Guardado' : 'Publicar'}
@@ -549,25 +532,7 @@ export default function Editor() {
         </div>
       </div>
 
-      {preview ? (
-        <div className="bg-surface-container-low/30 min-h-[calc(100vh-57px)]">
-          <div className="flex justify-center py-5 px-6">
-            <div className="bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold px-5 py-2.5 rounded-full uppercase tracking-widest">
-              Vista previa — así se verá la página al publicar
-            </div>
-          </div>
-          <div className="bg-white shadow-2xl mx-auto max-w-5xl rounded-2xl overflow-hidden mb-16 ring-1 ring-outline-variant/10">
-            <PagePreview
-              blocks={backendPage.blocks}
-              primaryColor={state.primaryColor}
-              secondaryColor={state.secondaryColor}
-              fontFamily={state.fontFamily}
-              metrics={metrics}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col lg:flex-row">
+      <div className="flex flex-col lg:flex-row">
           {/* ─── Sidebar (Blogger-style page flow) ─────────────────────────── */}
           <aside className="lg:w-72 lg:shrink-0 lg:sticky lg:top-[57px] lg:h-[calc(100vh-57px)] lg:overflow-y-auto border-b lg:border-b-0 lg:border-r border-outline-variant/10 bg-surface-container-lowest p-5 space-y-6">
             <div>
@@ -794,7 +759,6 @@ export default function Editor() {
             </div>
           </div>
         </div>
-      )}
     </div>
   );
 }
