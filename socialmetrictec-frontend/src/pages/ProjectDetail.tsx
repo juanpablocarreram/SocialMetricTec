@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
+import { withOpacity } from '@/src/lib/utils';
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Loader2, Mail, Globe, Linkedin, Instagram, Facebook, Twitter, ChevronDown, Users } from 'lucide-react';
@@ -90,8 +91,11 @@ export default function ProjectDetail() {
         />
       )}
       <div
-        className="relative h-full flex flex-col justify-center items-center text-center p-6 sm:p-10 md:p-16 bg-gradient-to-b from-transparent via-primary/20 to-primary/80"
-        style={{ backgroundColor: project.cover_image_url ? undefined : primaryColor }}
+        className="relative h-full flex flex-col justify-center items-center text-center p-6 sm:p-10 md:p-16"
+        style={{
+          background: `linear-gradient(to bottom, transparent, ${withOpacity(primaryColor, 0.2)}, ${withOpacity(primaryColor, 0.8)})`,
+          backgroundColor: project.cover_image_url ? undefined : primaryColor,
+        }}
       >
         <span className="text-white/60 font-bold text-xs uppercase tracking-widest mb-4">
           {formatArea(project.impact_area)}
@@ -112,8 +116,12 @@ export default function ProjectDetail() {
     <section className="py-20 bg-surface-container-lowest">
       <div className="max-w-5xl mx-auto px-5 sm:px-8">
         <div className="mb-12 text-center">
-          <span className="text-[10px] font-bold text-outline uppercase tracking-[0.3em]">Conoce al equipo</span>
-          <h2 className="text-3xl font-extrabold text-primary tracking-tighter mt-2">Equipo y Contacto</h2>
+          <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--p-secondary)' }}>
+            Conoce al equipo
+          </span>
+          <h2 className="text-3xl font-extrabold tracking-tighter mt-2" style={{ color: 'var(--p-primary)' }}>
+            Equipo y Contacto
+          </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {leaders.map((leader, i) => (
@@ -125,7 +133,14 @@ export default function ProjectDetail() {
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface" style={{ fontFamily }}>
+    <div
+      className="flex flex-col min-h-screen bg-surface"
+      style={{
+        fontFamily,
+        '--p-primary': primaryColor,
+        '--p-secondary': secondaryColor,
+      } as React.CSSProperties}
+    >
       {blocks.length === 0 && defaultHero}
 
       <PagePreview
@@ -166,7 +181,9 @@ export default function ProjectDetail() {
       {photos.length > 0 && (
         <section className="py-16 bg-white">
           <div className="max-w-6xl mx-auto px-5 sm:px-8">
-            <h2 className="text-2xl font-bold text-primary tracking-tight mb-8">Galería del Proyecto</h2>
+            <h2 className="text-2xl font-bold tracking-tight mb-8" style={{ color: 'var(--p-primary)' }}>
+              Galería del Proyecto
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {photos.map((photo, idx) => (
                 <motion.div
