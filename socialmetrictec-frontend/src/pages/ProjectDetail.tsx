@@ -160,7 +160,8 @@ export default function ProjectDetail() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex items-center gap-5 sm:gap-6 rounded-3xl bg-primary text-white p-6 sm:p-8 shadow-[0_25px_60px_-30px_rgba(0,32,104,0.7)]"
+            className="flex items-center gap-5 sm:gap-6 rounded-3xl text-white p-6 sm:p-8"
+            style={{ backgroundColor: 'var(--p-primary)', boxShadow: `0 25px 60px -30px ${withOpacity(primaryColor, 0.7)}` }}
           >
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
               <Users className="w-7 h-7 sm:w-8 sm:h-8" />
@@ -276,8 +277,12 @@ export default function ProjectDetail() {
         <section className="py-20 bg-white">
           <div className="max-w-4xl mx-auto px-5 sm:px-8">
             <div className="mb-12 text-center">
-              <span className="text-[10px] font-bold text-outline uppercase tracking-[0.3em]">Avances del proyecto</span>
-              <h2 className="text-3xl font-extrabold text-primary tracking-tighter mt-2">Hitos</h2>
+              <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--p-secondary)' }}>
+                Avances del proyecto
+              </span>
+              <h2 className="text-3xl font-extrabold tracking-tighter mt-2" style={{ color: 'var(--p-primary)' }}>
+                Hitos
+              </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {milestones.map((m, i) => (
@@ -299,7 +304,12 @@ export default function ProjectDetail() {
                     <Circle className="w-6 h-6 text-outline-variant shrink-0" />
                   )}
                   <div className="min-w-0">
-                    <p className={`text-sm font-bold break-words ${m.is_completed ? 'text-primary' : 'text-on-surface-variant'}`}>{m.title}</p>
+                    <p
+                      className={`text-sm font-bold break-words ${!m.is_completed ? 'text-on-surface-variant' : ''}`}
+                      style={m.is_completed ? { color: 'var(--p-primary)' } : undefined}
+                    >
+                      {m.title}
+                    </p>
                     {m.is_completed ? (
                       m.completed_at && (
                         <p className="text-[10px] text-outline uppercase tracking-wider font-medium mt-1">
@@ -322,8 +332,12 @@ export default function ProjectDetail() {
         <section className="py-20 bg-surface-container-lowest">
           <div className="max-w-3xl mx-auto px-5 sm:px-8">
             <div className="mb-12 text-center">
-              <span className="text-[10px] font-bold text-outline uppercase tracking-[0.3em]">Evolución</span>
-              <h2 className="text-3xl font-extrabold text-primary tracking-tighter mt-2">Línea de Tiempo</h2>
+              <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--p-secondary)' }}>
+                Evolución
+              </span>
+              <h2 className="text-3xl font-extrabold tracking-tighter mt-2" style={{ color: 'var(--p-primary)' }}>
+                Línea de Tiempo
+              </h2>
             </div>
             <ProjectTimeline
               createdAt={project.created_at}
