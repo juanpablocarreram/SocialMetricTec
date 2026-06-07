@@ -36,27 +36,15 @@ export default function PhotosManager({ projectId }: { projectId: number }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-primary tracking-tight">Galería del Proyecto</h2>
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] text-outline font-bold uppercase tracking-widest">{photos.length}/10</span>
-          {photos.length < 10 && (
-            <button
-              onClick={() => inputRef.current?.click()}
-              disabled={uploading}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary rounded-xl text-xs font-bold hover:bg-primary/20 transition-colors disabled:opacity-50"
-            >
-              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-              Subir foto
-            </button>
-          )}
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/jpeg,image/png"
-            className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ''; }}
-          />
-        </div>
+        <span className="text-[10px] text-outline font-bold uppercase tracking-widest">{photos.length}/10</span>
       </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png"
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ''; }}
+      />
       {photos.length === 0 ? (
         <button onClick={() => inputRef.current?.click()} className="w-full py-12 border-2 border-dashed border-outline-variant/20 rounded-2xl flex flex-col items-center gap-3 text-outline hover:border-primary/30 hover:text-primary transition-all">
           <Camera className="w-8 h-8 opacity-40" />
@@ -72,6 +60,16 @@ export default function PhotosManager({ projectId }: { projectId: number }) {
               </button>
             </div>
           ))}
+          {photos.length < 10 && (
+            <button
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+              className="relative aspect-square rounded-xl border-2 border-dashed border-outline-variant/20 flex flex-col items-center justify-center gap-2 text-outline hover:border-primary/40 hover:text-primary transition-all disabled:opacity-50"
+            >
+              {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-6 h-6 opacity-40 group-hover:opacity-100" />}
+              <span className="text-[10px] font-bold uppercase tracking-widest">Añadir</span>
+            </button>
+          )}
         </div>
       )}
     </div>
