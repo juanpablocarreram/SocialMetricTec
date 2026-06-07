@@ -260,7 +260,7 @@ export default function ProjectDetail() {
                       </span>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-primary truncate">{t.display_name ?? t.author_username}</p>
+                      <p className="text-sm font-bold truncate" style={{ color: 'var(--p-primary)' }}>{t.display_name ?? t.author_username}</p>
                       <p className="text-[10px] text-outline uppercase tracking-wider font-medium">{new Date(t.created_at).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                     </div>
                   </figcaption>
