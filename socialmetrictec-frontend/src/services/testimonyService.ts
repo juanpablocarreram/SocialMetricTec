@@ -51,6 +51,25 @@ export const deleteTestimony = async (projectId: number, testimonyId: number): P
   await api.delete(`/project/${projectId}/testimonies/${testimonyId}`);
 };
 
+export interface CsvRowError {
+  row: number;
+  errors: string[];
+}
+
+export interface CsvImportResult {
+  created: number;
+  errors: CsvRowError[];
+}
+
+export const importTestimoniesCSV = async (projectId: number, file: File): Promise<CsvImportResult> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await api.post(`/project/${projectId}/testimonies/import-csv`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
+};
+
 export interface ExportFilters {
   projectId?: number;
   dateFrom?: string;

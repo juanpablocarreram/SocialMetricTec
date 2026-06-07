@@ -6,7 +6,7 @@ from schemas.testimony import TestimonyCreate
 from schemas.user import UserOut as UserOutSchema
 
 
-def _is_authorized(db: Session, project_id: int, user: UserOutSchema) -> bool:
+def is_authorized_for_project(db: Session, project_id: int, user: UserOutSchema) -> bool:
     if user.is_admin:
         return True
     return db.query(Manages).filter(
@@ -36,7 +36,7 @@ def get_all_testimonies(
 
 
 def create_testimony(db: Session, project_id: int, data: TestimonyCreate, user: UserOutSchema) -> Testimony | str:
-    if not _is_authorized(db, project_id, user):
+    if not is_authorized_for_project(db, project_id, user):
         return "acceso_denegado"
 
     testimony = Testimony(

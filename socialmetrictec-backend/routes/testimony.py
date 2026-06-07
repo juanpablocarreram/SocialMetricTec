@@ -1,10 +1,11 @@
 import csv
 import io
 from datetime import date
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-from schemas.testimony import TestimonyCreate, TestimonyOut, TestimonyUpdate, CATEGORIES
+from models.testimony import Testimony, TestimonyTag
+from schemas.testimony import TestimonyCreate, TestimonyOut, TestimonyUpdate, CsvImportResult, CsvRowError, CATEGORIES
 from schemas.user import UserOut
 from schemas.export_log import ExportLogOut
 from services.crud.testimony import (
@@ -13,6 +14,7 @@ from services.crud.testimony import (
     update_testimony_display_name,
     get_testimonies_for_project,
     get_all_testimonies,
+    is_authorized_for_project,
 )
 from services.crud.export_log import record_export, get_export_logs
 from routes.deps import get_current_user_from_token, get_admin_user
@@ -68,6 +70,96 @@ def delete_testimony_route(
 ):
     result = delete_testimony(db, testimony_id, user)
     _raise_for_error(result)
+
+
+@router.post("/import-csv", response_model=CsvImportResult)
+async def import_testimonies_csv_route(
+    project_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: UserOut = Depends(get_current_user_from_token),
+):
+    if not is_authorized_for_project(db, project_id, user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para gestionar los testimonios de este proyecto.")
+
+    if not file.filename or not file.filename.lower().endswith(".csv"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo debe tener extensión .csv")
+
+    raw = await file.read()
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo debe estar codificado en UTF-8.")
+
+    reader = csv.DictReader(io.StringIO(text))
+
+    if not reader.fieldnames:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo CSV está vacío o no tiene encabezados.")
+
+    fieldnames = [f.strip() for f in reader.fieldnames]
+    if "content" not in fieldnames:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La columna 'content' es obligatoria en el encabezado del CSV.")
+
+    valid_rows: list[dict] = []
+    row_errors: list[CsvRowError] = []
+
+    for i, row in enumerate(reader, start=2):
+        errors: list[str] = []
+
+        content_val = (row.get("content") or "").strip()
+        display_name_val = (row.get("display_name") or "").strip() or None
+        category_val = (row.get("category") or "").strip() or None
+        tags_raw = (row.get("tags") or "").strip()
+
+        if not content_val:
+            errors.append("La columna 'content' es obligatoria.")
+        elif len(content_val) < 50:
+            errors.append(f"'content' debe tener al menos 50 caracteres (tiene {len(content_val)}).")
+        elif len(content_val) > 5000:
+            errors.append("'content' no puede superar 5,000 caracteres.")
+
+        if category_val and category_val not in CATEGORIES:
+            errors.append(f"Categoría '{category_val}' no válida. Opciones: {', '.join(CATEGORIES)}.")
+
+        tags_list: list[str] = []
+        if tags_raw:
+            raw_tags = [t.strip() for t in tags_raw.split(",") if t.strip()]
+            if len(raw_tags) > 10:
+                errors.append("Máximo 10 etiquetas por testimonio.")
+            else:
+                for tag in raw_tags:
+                    if len(tag) < 2 or len(tag) > 30:
+                        errors.append(f"Etiqueta '{tag}' debe tener entre 2 y 30 caracteres.")
+                    else:
+                        tags_list.append(tag)
+
+        if errors:
+            row_errors.append(CsvRowError(row=i, errors=errors))
+        else:
+            valid_rows.append({
+                "content": content_val,
+                "display_name": display_name_val,
+                "category": category_val,
+                "tags": tags_list,
+            })
+
+    created_count = 0
+    for row_data in valid_rows:
+        testimony = Testimony(
+            project_id=project_id,
+            author_username=user.username,
+            display_name=row_data["display_name"],
+            content=row_data["content"],
+            category=row_data["category"],
+        )
+        db.add(testimony)
+        db.flush()
+        for tag in row_data["tags"]:
+            db.add(TestimonyTag(testimony_id=testimony.testimony_id, tag_name=tag))
+        created_count += 1
+
+    db.commit()
+    return CsvImportResult(created=created_count, errors=row_errors)
 
 
 def _serialize(t):
