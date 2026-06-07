@@ -276,8 +276,8 @@ interface PagePreviewProps {
   metrics?: MetricOut[];
   fontFamily?: string;
   heroFallbackUrl?: string;
-  /** Contenido que se inserta justo antes del bloque de métricas (o al final si no hay). */
-  beforeMetrics?: ReactNode;
+  /** Contenido que se inserta justo después del bloque de métricas (o al final si no hay bloque de métricas). */
+  afterMetrics?: ReactNode;
 }
 
 export function PagePreview({
@@ -287,7 +287,7 @@ export function PagePreview({
   metrics = [],
   fontFamily = 'Manrope',
   heroFallbackUrl,
-  beforeMetrics,
+  afterMetrics,
 }: PagePreviewProps) {
   const metricsIndex = blocks.findIndex((block) => block.type === 'metrics');
 
@@ -295,7 +295,6 @@ export function PagePreview({
     <>
       {blocks.map((block, i) => (
         <Fragment key={i}>
-          {beforeMetrics && i === metricsIndex && beforeMetrics}
           <BlockRenderer
             block={block}
             primaryColor={primaryColor}
@@ -304,9 +303,10 @@ export function PagePreview({
             fontFamily={fontFamily}
             heroFallbackUrl={heroFallbackUrl}
           />
+          {afterMetrics && i === metricsIndex && afterMetrics}
         </Fragment>
       ))}
-      {beforeMetrics && metricsIndex === -1 && beforeMetrics}
+      {afterMetrics && metricsIndex === -1 && afterMetrics}
     </>
   );
 }

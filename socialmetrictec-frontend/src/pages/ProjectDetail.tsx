@@ -150,7 +150,7 @@ export default function ProjectDetail() {
         metrics={metrics}
         fontFamily={fontFamily}
         heroFallbackUrl={project.cover_image_url ?? undefined}
-        beforeMetrics={teamSection}
+        afterMetrics={teamSection}
       />
 
       {/* Widget de beneficiarios */}
