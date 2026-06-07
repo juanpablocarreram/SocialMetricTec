@@ -50,14 +50,7 @@ def delete_project_in_db(db: Session, project_id:int, current_user:UserOutSchema
     db_project = db.query(Project).filter(Project.project_id == project_id).first()
     if not db_project:
         return "no_encontrado"
-    # Verificar permisos
-    # Comprobamos si el usuario es administrador O si está en la tabla 'manages' para este proyecto
-    is_manager = db.query(Manages).filter(
-        Manages.project_id == project_id, 
-        Manages.username == current_user.username
-    ).first()
-
-    if not current_user.is_admin and not is_manager:
+    if not current_user.is_admin:
         return "acceso_denegado"
 
     # Proceder con la eliminación
