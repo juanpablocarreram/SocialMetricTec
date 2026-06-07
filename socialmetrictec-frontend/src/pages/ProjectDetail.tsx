@@ -125,7 +125,7 @@ export default function ProjectDetail() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {leaders.map((leader, i) => (
-            <LeaderCard key={leader.username} leader={leader} index={i} />
+            <LeaderCard key={leader.username} leader={leader} index={i} primaryColor={primaryColor} />
           ))}
         </div>
       </div>
@@ -350,7 +350,7 @@ export default function ProjectDetail() {
         </section>
       )}
 
-      <footer className="py-24 bg-primary text-white text-center">
+      <footer className="py-24 text-white text-center" style={{ backgroundColor: 'var(--p-primary)' }}>
         <div className="max-w-4xl mx-auto px-5 sm:px-8 space-y-8">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tighter">SocialMetricTec</h2>
           <p className="text-lg text-white/60 font-light max-w-lg mx-auto">
@@ -365,7 +365,7 @@ export default function ProjectDetail() {
   );
 }
 
-function LeaderCard({ leader, index }: { leader: ProjectLeader; index: number }) {
+function LeaderCard({ leader, index, primaryColor }: { leader: ProjectLeader; index: number; primaryColor: string }) {
   const [expanded, setExpanded] = useState(false);
   const p = leader.profile ?? {};
 
@@ -391,19 +391,27 @@ function LeaderCard({ leader, index }: { leader: ProjectLeader; index: number })
       transition={{ delay: index * 0.08, ease: 'easeOut' }}
       className="group relative bg-white rounded-3xl border border-outline-variant/10 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_-20px_rgba(0,32,104,0.35)] transition-all duration-300 overflow-hidden flex flex-col"
     >
-      <div className="h-20 bg-gradient-to-br from-primary to-primary/70 relative">
+      <div
+        className="h-20 relative"
+        style={{ background: `linear-gradient(to bottom right, ${primaryColor}, ${withOpacity(primaryColor, 0.7)})` }}
+      >
         <div className="absolute inset-0 opacity-[0.15] bg-[radial-gradient(circle_at_top_right,white,transparent_60%)]" />
       </div>
 
       <div className="px-5 sm:px-7 pb-7 flex flex-col">
         <div className="w-20 h-20 rounded-2xl bg-white p-1 shadow-lg shrink-0 mt-5">
-          <div className="w-full h-full rounded-[14px] bg-primary/10 flex items-center justify-center">
-            <span className="text-xl font-extrabold text-primary tracking-tight">{leader.username.slice(0, 2).toUpperCase()}</span>
+          <div
+            className="w-full h-full rounded-[14px] flex items-center justify-center"
+            style={{ backgroundColor: withOpacity(primaryColor, 0.1) }}
+          >
+            <span className="text-xl font-extrabold tracking-tight" style={{ color: primaryColor }}>
+              {leader.username.slice(0, 2).toUpperCase()}
+            </span>
           </div>
         </div>
 
-        <h3 className="text-lg font-extrabold text-primary tracking-tight mt-5">{leader.username}</h3>
-        <p className="text-[10px] font-bold text-outline uppercase tracking-[0.2em] mt-0.5">Líder del proyecto</p>
+        <h3 className="text-lg font-extrabold tracking-tight mt-5" style={{ color: primaryColor }}>{leader.username}</h3>
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] mt-0.5" style={{ color: 'var(--p-secondary)' }}>Líder del proyecto</p>
 
         {p.description && (
           <p className="text-sm text-on-surface-variant leading-relaxed mt-4 break-words whitespace-pre-line">{p.description}</p>
