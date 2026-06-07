@@ -2,6 +2,7 @@ import { Fragment, type ReactNode } from 'react';
 import { motion } from 'motion/react';
 import { Video } from 'lucide-react';
 import type { MetricOut } from '@/src/services/metricService';
+import { withOpacity } from '@/src/lib/utils';
 
 export interface BlockProps {
   title?: string;
@@ -96,13 +97,13 @@ export function BlockRenderer({
     return (
       <section className="py-32 bg-white overflow-hidden">
         <div className="max-w-4xl mx-auto px-8 flex flex-col items-center text-center gap-12">
-          <div className="w-20 h-1 rounded-full" style={{ backgroundColor: secondaryColor + '40' }} />
+          <div className="w-20 h-1 rounded-full" style={{ backgroundColor: withOpacity(secondaryColor, 0.4) }} />
           {props.title && (
             <motion.h3
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className="text-5xl font-bold text-primary tracking-tight"
-              style={{ fontFamily }}
+              className="text-5xl font-bold tracking-tight"
+              style={{ fontFamily, color: primaryColor }}
             >
               {props.title}
             </motion.h3>
@@ -112,6 +113,7 @@ export function BlockRenderer({
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               className="text-on-surface-variant leading-relaxed text-2xl font-light"
+              style={{ fontFamily }}
             >
               {props.body}
             </motion.p>
@@ -122,8 +124,11 @@ export function BlockRenderer({
               whileInView={{ opacity: 1, scale: 1 }}
               className="p-12 bg-surface-container-low rounded-[40px] border border-outline-variant/10 relative w-full"
             >
-              <div className="absolute -top-6 left-12 text-[120px] text-primary/10 font-serif select-none">"</div>
-              <p className="text-xl italic text-on-surface-variant leading-relaxed relative z-10">
+              <div
+                className="absolute -top-6 left-12 text-[120px] font-serif select-none"
+                style={{ color: withOpacity(primaryColor, 0.1) }}
+              >"</div>
+              <p className="text-xl italic text-on-surface-variant leading-relaxed relative z-10" style={{ fontFamily }}>
                 {props.quote}
               </p>
             </motion.div>
@@ -190,7 +195,7 @@ export function BlockRenderer({
             className="w-full rounded-2xl object-cover max-h-[500px]"
           />
           {props.caption && (
-            <p className="text-center text-sm text-on-surface-variant italic">{props.caption}</p>
+            <p className="text-center text-sm text-on-surface-variant italic" style={{ fontFamily }}>{props.caption}</p>
           )}
         </div>
       </section>
@@ -210,7 +215,7 @@ export function BlockRenderer({
         <div className="max-w-4xl w-full px-8 space-y-4">
           <video src={props.url} controls className="w-full rounded-2xl max-h-[500px] bg-black" />
           {props.title && (
-            <p className="text-center text-sm font-bold text-primary">{props.title}</p>
+            <p className="text-center text-sm font-bold" style={{ color: primaryColor, fontFamily }}>{props.title}</p>
           )}
         </div>
       </section>
