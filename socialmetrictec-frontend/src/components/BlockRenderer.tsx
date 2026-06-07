@@ -170,7 +170,7 @@ export function BlockRenderer({
                           className="text-3xl font-extrabold tracking-tighter"
                           style={{ color: primaryColor }}
                         >
-                          {sm.sub_metric_value !== null ? sm.sub_metric_value.toString() : '—'}
+                          {sm.sub_metric_value ?? '—'}
                         </span>
                       </div>
                     ))}

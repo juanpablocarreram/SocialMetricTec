@@ -127,7 +127,7 @@ export default function ProjectReport() {
                 metric.sub_metrics.map((sm) => (
                   <div key={sm.sub_metric_id} className="rounded-xl p-5" style={{ backgroundColor: template.soft }}>
                     <p className="text-3xl font-black tracking-tighter" style={{ color: template.accent }}>
-                      {sm.sub_metric_value !== null ? sm.sub_metric_value.toString() : '—'}
+                      {sm.sub_metric_value ?? '—'}
                     </p>
                     <p className="text-[11px] font-semibold text-neutral-500 mt-1">{sm.sub_metric_title}</p>
                     <p className="text-[9px] text-neutral-400 uppercase tracking-wider mt-0.5">{metric.metric_title}</p>

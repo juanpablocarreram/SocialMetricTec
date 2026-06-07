@@ -80,13 +80,13 @@ CREATE TABLE IF NOT EXISTS metric (
  
 -- ============================================================
 -- 5. sub_metric  (1 metric : N sub_metrics)
---    DECIMAL(18,4) prevents floating-point rounding issues
---    for numeric KPI values.
+--    VARCHAR(500) allows any text value (numbers, percentages,
+--    labels, etc.) so the user sees exactly what they wrote.
 -- ============================================================
 CREATE TABLE IF NOT EXISTS sub_metric (
     sub_metric_id     INT            NOT NULL AUTO_INCREMENT,
     sub_metric_title  VARCHAR(255)   NOT NULL,
-    sub_metric_value  DECIMAL(18,4),
+    sub_metric_value  VARCHAR(500),
     metric_id         INT            NOT NULL,
  
     CONSTRAINT pk_sub_metric        PRIMARY KEY (sub_metric_id),

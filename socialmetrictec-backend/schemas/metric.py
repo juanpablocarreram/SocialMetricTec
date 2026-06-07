@@ -1,22 +1,21 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
-from decimal import Decimal
 
 
 class SubMetricCreate(BaseModel):
     sub_metric_title: str
-    sub_metric_value: Optional[Decimal] = None
+    sub_metric_value: Optional[str] = None
 
 
 class SubMetricUpdate(BaseModel):
     sub_metric_title: str
-    sub_metric_value: Optional[Decimal] = None
+    sub_metric_value: Optional[str] = None
 
 
 class SubMetricOut(BaseModel):
     sub_metric_id: int
     sub_metric_title: str
-    sub_metric_value: Optional[Decimal] = None
+    sub_metric_value: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 

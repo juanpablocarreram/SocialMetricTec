@@ -57,7 +57,7 @@ export default function MetricsManager({ projectId }: { projectId: number }) {
         .filter((sm) => sm.title.trim() !== '')
         .map((sm) => ({
           sub_metric_title: sm.title,
-          sub_metric_value: sm.value ? parseFloat(sm.value) : null,
+          sub_metric_value: sm.value.trim() || null,
         })),
     };
     try {
@@ -120,7 +120,7 @@ export default function MetricsManager({ projectId }: { projectId: number }) {
                   <div key={sm.sub_metric_id} className="flex justify-between items-baseline border-b border-outline-variant/5 pb-2">
                     <span className="text-xs font-semibold text-outline tracking-tight">{sm.sub_metric_title}</span>
                     <span className="text-2xl font-black text-primary tracking-tighter">
-                      {sm.sub_metric_value !== null ? sm.sub_metric_value.toString() : '—'}
+                      {sm.sub_metric_value ?? '—'}
                     </span>
                   </div>
                 ))}
@@ -171,7 +171,7 @@ export default function MetricsManager({ projectId }: { projectId: number }) {
                           className="flex-grow bg-surface-container-low border-none rounded-xl p-3 text-xs focus:ring-1 focus:ring-primary outline-none"
                         />
                         <input
-                          placeholder="Valor (Ej: 450 o 15.5)"
+                          placeholder="Valor (Ej: 450, 15%, Alto)"
                           value={sm.value}
                           onChange={(e) => handleSubMetricChange(idx, 'value', e.target.value)}
                           className="w-32 bg-surface-container-low border-none rounded-xl p-3 text-xs font-bold text-primary focus:ring-1 focus:ring-primary outline-none"

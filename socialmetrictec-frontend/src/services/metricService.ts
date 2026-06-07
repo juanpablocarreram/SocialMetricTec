@@ -2,18 +2,18 @@ import apiClient from '@/src/lib/axios';
 
 export interface SubMetricCreate {
   sub_metric_title: string;
-  sub_metric_value?: number | null;
+  sub_metric_value?: string | null;
 }
 
 export interface SubMetricUpdate {
   sub_metric_title: string;
-  sub_metric_value?: number | null;
+  sub_metric_value?: string | null;
 }
 
 export interface SubMetricOut {
   sub_metric_id: number;
   sub_metric_title: string;
-  sub_metric_value: number | null;
+  sub_metric_value: string | null;
 }
 
 export interface MetricCreate {
