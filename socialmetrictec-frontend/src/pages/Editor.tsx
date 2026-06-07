@@ -236,7 +236,7 @@ const sectionLabel = (s: Section) => {
 
 // ─── Sidebar sortable tag ─────────────────────────────────────────────────────
 
-function SortableTag({ section, onSelect }: { section: Section; onSelect: () => void }) {
+function SortableTag({ section, onSelect, onDelete }: { section: Section; onSelect: () => void; onDelete: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
   const meta = SECTION_META[section.type];
   return (
@@ -259,6 +259,9 @@ function SortableTag({ section, onSelect }: { section: Section; onSelect: () => 
       <button onClick={onSelect} className="flex items-center gap-2 flex-grow py-2.5 min-w-0 text-left">
         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: meta.dot }} />
         <span className="text-xs font-semibold text-primary truncate">{sectionLabel(section)}</span>
+      </button>
+      <button onClick={onDelete} className="p-1.5 text-outline-variant hover:text-error rounded-lg transition-all" title="Eliminar sección">
+        <Trash2 className="w-3.5 h-3.5" />
       </button>
     </div>
   );
@@ -594,7 +597,7 @@ export default function Editor() {
                 <SortableContext items={contentSections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
                   <div className="space-y-2">
                     {contentSections.map((section) => (
-                      <SortableTag key={section.id} section={section} onSelect={() => scrollTo(`section-${section.id}`)} />
+                      <SortableTag key={section.id} section={section} onSelect={() => scrollTo(`section-${section.id}`)} onDelete={() => removeSection(section.id)} />
                     ))}
                   </div>
                 </SortableContext>
