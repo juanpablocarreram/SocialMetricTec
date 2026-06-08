@@ -236,13 +236,16 @@ export default function Navbar() {
                       <span className="text-[10px] font-bold uppercase tracking-widest">Editar Perfil</span>
                     </Link>
                     <div className="h-px bg-outline-variant/5 my-1" />
-                    <Link
-                      to="/login"
-                      onClick={() => { logout(); setIsProfileOpen(false); }}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl text-error hover:bg-error/5 transition-all"
+                    <button
+                      onClick={() => { 
+                        logout(); 
+                        setIsProfileOpen(false); 
+                        window.location.replace("/login"); // <-- Borra el historial del navegador hacia atrás
+                      }}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl text-error hover:bg-error/5 transition-all text-left"
                     >
                       <span className="text-[10px] font-bold uppercase tracking-widest">Cerrar Sesión</span>
-                    </Link>
+                    </button>
                   </div>
                 </motion.div>
               )}
