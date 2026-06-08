@@ -1,177 +1,260 @@
-import { useMemo, useState } from 'react';
-import { motion } from 'motion/react';
-import { Rocket, Pencil, MessageSquare, Camera, Flag, CheckCircle2, BarChart3, ToggleRight } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Pencil, ToggleRight, BarChart3, Flag, PlusCircle, Trash2, ChevronDown } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
-import { TestimonyOut } from '@/src/services/testimonyService';
-import { PhotoOut } from '@/src/services/photoService';
-import { MilestoneOut } from '@/src/services/milestoneService';
 import { ChangeLogEntry } from '@/src/services/changeLogService';
 
-type EventType = 'creacion' | 'edicion' | 'testimonio' | 'foto' | 'hito' | 'metrica' | 'estado';
-
-interface TimelineEvent {
-  id: string;
-  type: EventType;
-  title: string;
-  timestamp: string;
+interface PublicationGroup {
+  type: 'publication';
+  publishEvent: ChangeLogEntry;
+  children: ChangeLogEntry[];
 }
 
-interface ProjectTimelineProps {
-  createdAt: string;
-  editLog?: string[];
-  testimonies: TestimonyOut[];
-  photos: PhotoOut[];
-  milestones: MilestoneOut[];
-  changeLogs: ChangeLogEntry[];
+interface StatusEvent {
+  type: 'status';
+  event: ChangeLogEntry;
 }
 
-const TYPE_META: Record<EventType, { label: string; icon: typeof Rocket; color: string }> = {
-  creacion:   { label: 'Creación',   icon: Rocket,       color: 'bg-primary text-white' },
-  edicion:    { label: 'Ediciones',  icon: Pencil,       color: 'bg-blue-100 text-blue-600' },
-  testimonio: { label: 'Testimonios',icon: MessageSquare, color: 'bg-orange-100 text-orange-600' },
-  foto:       { label: 'Fotos',      icon: Camera,       color: 'bg-emerald-100 text-emerald-600' },
-  hito:       { label: 'Hitos',      icon: Flag,         color: 'bg-purple-100 text-purple-600' },
-  metrica:    { label: 'Métricas',   icon: BarChart3,    color: 'bg-teal-100 text-teal-600' },
-  estado:     { label: 'Estado',     icon: ToggleRight,  color: 'bg-slate-100 text-slate-600' },
-};
+type TimelineItem = PublicationGroup | StatusEvent;
+
+const KNOWN_EVENTS = new Set([
+  'page_edited', 'project_activated', 'project_deactivated',
+  'page_block_added', 'page_block_modified', 'page_block_removed',
+  'metric_created', 'metric_updated', 'metric_deleted', 'milestone_updated',
+]);
+
+function buildGroups(changeLogs: ChangeLogEntry[]): TimelineItem[] {
+  const sorted = [...changeLogs]
+    .filter(e => KNOWN_EVENTS.has(e.event_type))
+    .sort((a, b) => {
+      const tDiff = new Date(a.occurred_at).getTime() - new Date(b.occurred_at).getTime();
+      return tDiff !== 0 ? tDiff : a.log_id - b.log_id;
+    });
+
+  const groups: TimelineItem[] = [];
+  let pending: ChangeLogEntry[] = [];
+
+  for (const entry of sorted) {
+    if (entry.event_type === 'page_edited') {
+      groups.push({
+        type: 'publication',
+        publishEvent: entry,
+        children: [...pending].reverse(),
+      });
+      pending = [];
+    } else if (entry.event_type === 'project_activated' || entry.event_type === 'project_deactivated') {
+      groups.push({ type: 'status', event: entry });
+    } else {
+      pending.push(entry);
+    }
+  }
+
+  return groups.reverse();
+}
 
 const formatDateTime = (iso: string) => {
   const d = new Date(iso);
-  const date = d.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
-  const time = d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-  return `${date} · ${time}`;
+  return `${d.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })} · ${d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`;
 };
 
-const METRIC_TITLES: Record<string, string> = {
-  metric_created: 'Métrica creada',
-  metric_updated: 'Métrica editada',
-  metric_deleted: 'Métrica eliminada',
+const formatTime = (iso: string) =>
+  new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+const SUB_EVENT_META: Record<string, { label: string; icon: React.ElementType; color: string }> = {
+  page_block_added:    { label: 'añadido',           icon: PlusCircle, color: 'bg-blue-50 text-blue-500' },
+  page_block_modified: { label: 'modificado',        icon: Pencil,     color: 'bg-blue-50 text-blue-500' },
+  page_block_removed:  { label: 'eliminado',         icon: Trash2,     color: 'bg-blue-50 text-blue-500' },
+  metric_created:      { label: 'Métrica creada',    icon: BarChart3,  color: 'bg-teal-50 text-teal-600' },
+  metric_updated:      { label: 'Métrica editada',   icon: BarChart3,  color: 'bg-teal-50 text-teal-600' },
+  metric_deleted:      { label: 'Métrica eliminada', icon: BarChart3,  color: 'bg-teal-50 text-teal-600' },
+  milestone_updated:   { label: 'Hito editado',      icon: Flag,       color: 'bg-purple-50 text-purple-600' },
 };
 
-function buildEvents({ createdAt, editLog, testimonies, photos, milestones, changeLogs }: ProjectTimelineProps): TimelineEvent[] {
-  const events: TimelineEvent[] = [];
-
-  events.push({ id: 'created', type: 'creacion', title: 'Proyecto creado', timestamp: createdAt });
-
-  (editLog ?? []).forEach((ts, i) => {
-    events.push({ id: `edit-${i}`, type: 'edicion', title: 'Página del proyecto editada', timestamp: ts });
-  });
-
-  testimonies.forEach((t) => {
-    events.push({
-      id: `testimony-${t.testimony_id}`,
-      type: 'testimonio',
-      title: `Testimonio de ${t.display_name ?? t.author_username}`,
-      timestamp: t.created_at,
-    });
-  });
-
-  photos.forEach((p) => {
-    events.push({ id: `photo-${p.photo_id}`, type: 'foto', title: 'Foto subida al proyecto', timestamp: p.created_at });
-  });
-
-  milestones.forEach((m) => {
-    events.push({ id: `milestone-new-${m.milestone_id}`, type: 'hito', title: `Hito creado: ${m.title}`, timestamp: m.created_at });
-    if (m.is_completed && m.completed_at) {
-      events.push({ id: `milestone-done-${m.milestone_id}`, type: 'hito', title: `Hito completado: ${m.title}`, timestamp: m.completed_at });
-    }
-  });
-
-  changeLogs.forEach((entry) => {
-    if (entry.event_type === 'page_edited') {
-      events.push({ id: `cl-${entry.log_id}`, type: 'edicion', title: 'Página del proyecto editada', timestamp: entry.occurred_at });
-    } else if (entry.event_type in METRIC_TITLES) {
-      const base = METRIC_TITLES[entry.event_type];
-      const title = entry.entity_name ? `${base}: ${entry.entity_name}` : base;
-      events.push({ id: `cl-${entry.log_id}`, type: 'metrica', title, timestamp: entry.occurred_at });
-    } else if (entry.event_type === 'milestone_updated') {
-      const title = entry.entity_name ? `Hito editado: ${entry.entity_name}` : 'Hito editado';
-      events.push({ id: `cl-${entry.log_id}`, type: 'hito', title, timestamp: entry.occurred_at });
-    } else if (entry.event_type === 'project_activated') {
-      events.push({ id: `cl-${entry.log_id}`, type: 'estado', title: 'Proyecto marcado como activo', timestamp: entry.occurred_at });
-    } else if (entry.event_type === 'project_deactivated') {
-      events.push({ id: `cl-${entry.log_id}`, type: 'estado', title: 'Proyecto marcado como inactivo', timestamp: entry.occurred_at });
-    }
-  });
-
-  return events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+function subEventLabel(entry: ChangeLogEntry): string {
+  const meta = SUB_EVENT_META[entry.event_type];
+  if (!meta) return entry.event_type;
+  if (entry.event_type.startsWith('page_block_')) {
+    return `${entry.entity_name ?? 'Bloque'} ${meta.label}`;
+  }
+  return entry.entity_name ? `${meta.label}: ${entry.entity_name}` : meta.label;
 }
 
-export default function ProjectTimeline(props: ProjectTimelineProps) {
-  const allEvents = useMemo(() => buildEvents(props), [props]);
-  const [activeFilters, setActiveFilters] = useState<Set<EventType>>(new Set());
+export interface ProjectTimelineProps {
+  changeLogs: ChangeLogEntry[];
+}
 
-  const toggleFilter = (type: EventType) => {
-    setActiveFilters((prev) => {
+export default function ProjectTimeline({ changeLogs }: ProjectTimelineProps) {
+  const items = useMemo(() => buildGroups(changeLogs), [changeLogs]);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+
+  const toggle = (id: number) =>
+    setExpanded(prev => {
       const next = new Set(prev);
-      next.has(type) ? next.delete(type) : next.add(type);
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
-  };
 
-  const visibleEvents = activeFilters.size === 0
-    ? allEvents
-    : allEvents.filter((e) => activeFilters.has(e.type));
-
-  if (allEvents.length === 0) return null;
-
-  const availableTypes = (Object.keys(TYPE_META) as EventType[]).filter((type) =>
-    allEvents.some((e) => e.type === type),
-  );
+  if (items.length === 0) return null;
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-2 mb-8">
-        {availableTypes.map((type) => {
-          const { label, icon: Icon } = TYPE_META[type];
-          const active = activeFilters.has(type);
-          return (
-            <button
-              key={type}
-              onClick={() => toggleFilter(type)}
-              className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all',
-                active
-                  ? 'bg-primary text-white border-primary'
-                  : 'bg-white text-on-surface-variant border-outline-variant/20 hover:border-primary/30',
-              )}
-            >
-              <Icon className="w-3.5 h-3.5" /> {label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="relative pl-8">
-        <div className="absolute left-[11px] top-2 bottom-2 w-px bg-outline-variant/20" />
-        <div className="space-y-6">
-          {visibleEvents.map((event, i) => {
-            const { icon: Icon, color } = TYPE_META[event.type];
-            const isCompletion = event.id.startsWith('milestone-done');
+    <div className="relative pl-10">
+      <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-blue-400 to-outline-variant/10" />
+      <div className="space-y-4">
+        {items.map((item, i) => {
+          if (item.type === 'status') {
+            const label =
+              item.event.event_type === 'project_activated'
+                ? 'Proyecto marcado como activo'
+                : 'Proyecto marcado como inactivo';
             return (
               <motion.div
-                key={event.id}
+                key={item.event.log_id}
                 initial={{ opacity: 0, x: -8 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: Math.min(i, 8) * 0.04 }}
                 className="relative"
               >
-                <span className={cn('absolute -left-8 top-0 w-6 h-6 rounded-full flex items-center justify-center shadow-sm', color)}>
-                  {isCompletion ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
+                <span className="absolute -left-10 top-1 w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shadow-sm">
+                  <ToggleRight className="w-3.5 h-3.5" />
                 </span>
-                <div className="pb-1">
-                  <p className="text-sm font-bold text-primary leading-tight">{event.title}</p>
-                  <p className="text-[10px] text-outline uppercase tracking-wider font-medium mt-0.5">{formatDateTime(event.timestamp)}</p>
+                <div className="px-4 py-3 bg-white rounded-xl border border-outline-variant/15">
+                  <p className="text-sm font-bold text-on-surface leading-tight">{label}</p>
+                  <p className="text-[10px] text-outline uppercase tracking-wider font-medium mt-1">
+                    {formatDateTime(item.event.occurred_at)}
+                  </p>
                 </div>
               </motion.div>
             );
-          })}
-        </div>
+          }
 
-        {visibleEvents.length === 0 && (
-          <p className="text-sm text-outline italic">No hay eventos de este tipo.</p>
-        )}
+          const { publishEvent, children } = item;
+          const isOpen = expanded.has(publishEvent.log_id);
+          const hasChildren = children.length > 0;
+          const blockChildren = children.filter(c => c.event_type.startsWith('page_block_'));
+          const dataChildren = children.filter(c => !c.event_type.startsWith('page_block_'));
+
+          return (
+            <motion.div
+              key={publishEvent.log_id}
+              initial={{ opacity: 0, x: -8 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: Math.min(i, 8) * 0.04 }}
+              className="relative"
+            >
+              <span className="absolute -left-10 top-1 w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shadow-sm">
+                <Pencil className="w-3.5 h-3.5" />
+              </span>
+              <div
+                className={cn(
+                  'bg-white rounded-xl border overflow-hidden',
+                  hasChildren ? 'border-blue-200' : 'border-outline-variant/15',
+                )}
+              >
+                <button
+                  onClick={() => hasChildren && toggle(publishEvent.log_id)}
+                  className={cn(
+                    'w-full flex items-center justify-between px-4 py-3 text-left',
+                    hasChildren
+                      ? 'cursor-pointer hover:bg-blue-50/50 transition-colors'
+                      : 'cursor-default',
+                  )}
+                >
+                  <div>
+                    <p className="text-sm font-bold text-blue-700 leading-tight">
+                      Publicación de página
+                    </p>
+                    <p className="text-[10px] text-outline uppercase tracking-wider font-medium mt-1">
+                      {formatDateTime(publishEvent.occurred_at)}
+                      {hasChildren && (
+                        <span className="text-blue-500 font-bold">
+                          {' '}·{' '}
+                          {children.length}{' '}
+                          {children.length === 1 ? 'cambio' : 'cambios'}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  {hasChildren && (
+                    <ChevronDown
+                      className={cn(
+                        'w-4 h-4 text-blue-400 transition-transform duration-200 shrink-0 ml-3',
+                        isOpen && 'rotate-180',
+                      )}
+                    />
+                  )}
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      className="overflow-hidden"
+                    >
+                      <div className="border-t border-blue-100 bg-blue-50/40 px-4 py-3 space-y-2">
+                        {blockChildren.map(entry => {
+                          const meta = SUB_EVENT_META[entry.event_type];
+                          if (!meta) return null;
+                          const Icon = meta.icon as React.ElementType;
+                          return (
+                            <div key={entry.log_id} className="flex items-center gap-2.5">
+                              <span
+                                className={cn(
+                                  'w-5 h-5 rounded-full flex items-center justify-center shrink-0',
+                                  meta.color,
+                                )}
+                              >
+                                <Icon className="w-2.5 h-2.5" />
+                              </span>
+                              <span className="text-xs text-on-surface font-medium">
+                                {subEventLabel(entry)}
+                              </span>
+                              <span className="text-[9px] text-outline ml-auto shrink-0">
+                                {formatTime(entry.occurred_at)}
+                              </span>
+                            </div>
+                          );
+                        })}
+
+                        {blockChildren.length > 0 && dataChildren.length > 0 && (
+                          <div className="border-t border-blue-100 my-1" />
+                        )}
+
+                        {dataChildren.map(entry => {
+                          const meta = SUB_EVENT_META[entry.event_type];
+                          if (!meta) return null;
+                          const Icon = meta.icon as React.ElementType;
+                          return (
+                            <div key={entry.log_id} className="flex items-center gap-2.5">
+                              <span
+                                className={cn(
+                                  'w-5 h-5 rounded-full flex items-center justify-center shrink-0',
+                                  meta.color,
+                                )}
+                              >
+                                <Icon className="w-2.5 h-2.5" />
+                              </span>
+                              <span className="text-xs text-on-surface font-medium">
+                                {subEventLabel(entry)}
+                              </span>
+                              <span className="text-[9px] text-outline ml-auto shrink-0">
+                                {formatTime(entry.occurred_at)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );
