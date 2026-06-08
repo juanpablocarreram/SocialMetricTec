@@ -118,12 +118,13 @@ export default function TestimonyForm() {
             {/* Content */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Tu testimonio</label>
+                <label htmlFor="testimony-content" className="text-[10px] font-bold text-outline uppercase tracking-widest">Tu testimonio</label>
                 <span className={cn('text-[10px] font-bold', content.length < MIN_CHARS ? 'text-error' : 'text-emerald-600')}>
                   {content.trim().length} / {MIN_CHARS} mín · {remaining} restantes
                 </span>
               </div>
               <textarea
+                id="testimony-content"
                 required
                 rows={6}
                 value={content}
@@ -139,29 +140,33 @@ export default function TestimonyForm() {
 
             {/* Category */}
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Categoría</label>
-              <div className="flex flex-wrap gap-2">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setCategory(category === cat ? '' : cat)}
-                    className={cn(
-                      'px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border',
-                      category === cat ? 'bg-primary text-white border-primary' : 'bg-surface-container-low text-on-surface-variant border-transparent hover:border-outline-variant/30',
-                    )}
-                  >
-                    {cat}
-                  </button>
-                ))}
+              <div role="group" aria-labelledby="testimony-category-label">
+                <label id="testimony-category-label" className="text-[10px] font-bold text-outline uppercase tracking-widest">Categoría</label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      aria-pressed={category === cat}
+                      onClick={() => setCategory(category === cat ? '' : cat)}
+                      className={cn(
+                        'px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border',
+                        category === cat ? 'bg-primary text-white border-primary' : 'bg-surface-container-low text-on-surface-variant border-transparent hover:border-outline-variant/30',
+                      )}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Tags */}
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Etiquetas ({tags.length}/10)</label>
+              <label htmlFor="testimony-tags" className="text-[10px] font-bold text-outline uppercase tracking-widest">Etiquetas ({tags.length}/10)</label>
               <div className="flex gap-2">
                 <input
+                  id="testimony-tags"
                   type="text"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
@@ -191,7 +196,7 @@ export default function TestimonyForm() {
             </div>
 
             {error && (
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-error font-medium">
+              <motion.p role="alert" aria-live="assertive" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-error font-medium">
                 {error}
               </motion.p>
             )}
@@ -206,9 +211,10 @@ export default function TestimonyForm() {
             <button
               type="submit"
               disabled={submitting || !isValid}
+              aria-busy={submitting}
               className="w-full py-4 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              {submitting ? <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" /> : <Check aria-hidden="true" className="w-4 h-4" />}
               Enviar Testimonio
             </button>
           </form>
@@ -228,8 +234,12 @@ export default function TestimonyForm() {
                   <div className="flex items-center gap-2">
                     {t.category && <span className="text-[9px] font-bold uppercase tracking-widest bg-primary/5 text-primary px-3 py-1 rounded-full">{t.category}</span>}
                     {(user?.is_admin || user?.username === t.author_username) && (
-                      <button onClick={() => handleDelete(t.testimony_id)} className="p-1.5 text-outline-variant hover:text-error opacity-0 group-hover:opacity-100 transition-all rounded-lg hover:bg-error/5">
-                        <Trash2 className="w-4 h-4" />
+                      <button
+                        onClick={() => handleDelete(t.testimony_id)}
+                        aria-label={`Eliminar testimonio de ${t.display_name ?? t.author_username}`}
+                        className="p-1.5 text-outline-variant hover:text-error opacity-0 group-hover:opacity-100 transition-all rounded-lg hover:bg-error/5"
+                      >
+                        <Trash2 aria-hidden="true" className="w-4 h-4" />
                       </button>
                     )}
                   </div>
