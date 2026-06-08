@@ -9,12 +9,14 @@ import PasswordInput from '../components/PasswordInput';
 const LoginForm = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { setUser, setLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage('');
 
     try {
       // 1. Preparar los datos del formulario para FastAPI
@@ -53,7 +55,7 @@ const LoginForm = () => {
       // vive adentro de error.response.data
       const errorMsg = error.response?.data?.detail || "Error al iniciar sesión";
       
-      alert(typeof errorMsg === 'string' ? errorMsg : "Error de validación");
+      setErrorMessage(typeof errorMsg === 'string' ? errorMsg : "Error de validación");
     } 
     finally {
       setIsSubmitting(false);
@@ -67,12 +69,13 @@ const LoginForm = () => {
     >
       <div className="space-y-6">
         <div className="space-y-2">
-          <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+          <label htmlFor="username" className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
             Nombre de Usuario
           </label>
-          <input 
+          <input
+            id="username"
             required
-            type="text" 
+            type="text"
             value={formData.username}
             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
             placeholder="Noobmaster69"
@@ -80,10 +83,11 @@ const LoginForm = () => {
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+          <label htmlFor="password" className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
             Contraseña
           </label>
           <PasswordInput
+            id="password"
             required
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -93,15 +97,22 @@ const LoginForm = () => {
         </div>
       </div>
 
-      <button 
-        type="submit" 
+      {errorMessage && (
+        <div role="alert" aria-live="assertive" className="flex items-center gap-2 bg-error/10 border border-error/30 text-error rounded-lg p-3 text-sm font-medium">
+          {errorMessage}
+        </div>
+      )}
+
+      <button
+        type="submit"
         disabled={isSubmitting}
+        aria-busy={isSubmitting}
         className="w-full bg-primary text-white py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:brightness-110 transition-all shadow-lg active:scale-[0.98] cursor-pointer disabled:opacity-70"
       >
         {isSubmitting ? (
-          <Loader2 className="w-5 h-5 animate-spin" />
+          <><Loader2 aria-hidden="true" className="w-5 h-5 animate-spin" /> Iniciando sesión...</>
         ) : (
-          <>Iniciar Sesión <ArrowRight className="w-5 h-5" /></>
+          <>Iniciar Sesión <ArrowRight aria-hidden="true" className="w-5 h-5" /></>
         )}
       </button>
     </form>
@@ -125,8 +136,9 @@ export default function Login() {
             SocialMetricTec
           </span>
         </Link>
-        <button 
+        <button
           onClick={() => navigate(-1)}
+          aria-label="Regresar a la página anterior"
           className="px-6 py-2 cursor-pointer border border-primary text-primary rounded-md text-sm font-semibold hover:bg-primary/5 transition-colors flex items-center gap-2"
         >
           Regresar
