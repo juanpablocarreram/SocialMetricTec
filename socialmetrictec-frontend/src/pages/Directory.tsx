@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, Calendar, ChevronDown, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -11,6 +11,7 @@ export default function Directory() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [areaFilter, setAreaFilter] = useState('all');
+  const rm = useReducedMotion();
 
   useEffect(() => {
     listProjects()
@@ -43,6 +44,7 @@ export default function Directory() {
           <motion.span
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: rm ? 0 : 0.4 }}
             className="font-body text-xs uppercase tracking-[0.3em] text-primary mb-4 font-bold"
           >
             Repositorio de Impacto Social
@@ -50,7 +52,7 @@ export default function Directory() {
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: rm ? 0 : 0.1, duration: rm ? 0 : 0.4 }}
             className="text-4xl md:text-6xl font-extrabold text-primary mb-12 tracking-tighter leading-tight max-w-4xl"
           >
             Descubre el Legado de la Transformación Colectiva.
@@ -59,14 +61,15 @@ export default function Directory() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: rm ? 0 : 0.2, duration: rm ? 0 : 0.4 }}
             className="w-full max-w-3xl relative group"
           >
             <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
               <Search className="w-6 h-6 text-outline group-focus-within:text-primary transition-colors" />
             </div>
             <input
-              type="text"
+              type="search"
+              aria-label="Buscar proyectos por nombre o área"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por nombre, palabra clave o área..."
@@ -86,6 +89,7 @@ export default function Directory() {
 
             <div className="relative">
               <select
+                aria-label="Filtrar por estado de actividad"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="bg-surface-container-high border-none rounded-lg py-2 pl-4 pr-10 text-sm font-semibold text-secondary focus:ring-primary cursor-pointer hover:bg-surface-container-highest transition-colors outline-none appearance-none"
@@ -99,6 +103,7 @@ export default function Directory() {
 
             <div className="relative">
               <select
+                aria-label="Filtrar por área de impacto"
                 value={areaFilter}
                 onChange={(e) => setAreaFilter(e.target.value)}
                 className="bg-surface-container-high border-none rounded-lg py-2 pl-4 pr-10 text-sm font-semibold text-secondary focus:ring-primary cursor-pointer hover:bg-surface-container-highest transition-colors outline-none appearance-none"
@@ -114,7 +119,7 @@ export default function Directory() {
             </div>
           </div>
 
-          <div className="text-on-surface-variant text-sm font-medium">
+          <div aria-live="polite" aria-atomic="true" className="text-on-surface-variant text-sm font-medium">
             Mostrando <span className="font-bold text-primary">{filteredProjects.length}</span> proyectos
           </div>
         </div>
@@ -122,8 +127,8 @@ export default function Directory() {
 
       <section className="px-6 md:px-12 py-16 max-w-screen-2xl mx-auto w-full">
         {loading ? (
-          <div className="flex justify-center py-24">
-            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <div role="status" aria-label="Cargando proyectos" className="flex justify-center py-24">
+            <Loader2 aria-hidden="true" className="w-8 h-8 text-primary animate-spin" />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -131,12 +136,13 @@ export default function Directory() {
               <Link
                 key={project.project_id}
                 to={`/project/${project.project_id}`}
+                aria-label={`Ver proyecto: ${project.project_name}`}
                 className="flex flex-col bg-surface-container-lowest group cursor-pointer tonal-card rounded-2xl p-2"
               >
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: (idx % 3) * 0.1 }}
+                  transition={{ delay: rm ? 0 : (idx % 3) * 0.1, duration: rm ? 0 : 0.4 }}
                   viewport={{ once: true }}
                   className="flex flex-col h-full"
                 >
