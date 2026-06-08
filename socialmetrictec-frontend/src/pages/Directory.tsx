@@ -119,7 +119,7 @@ export default function Directory() {
             </div>
           </div>
 
-          <div aria-live="polite" aria-atomic="true" className="text-on-surface-variant text-sm font-medium">
+          <div aria-live="polite" aria-atomic="true" aria-label="Resultados de búsqueda" className="text-on-surface-variant text-sm font-medium">
             Mostrando <span className="font-bold text-primary">{filteredProjects.length}</span> proyectos
           </div>
         </div>
@@ -127,7 +127,8 @@ export default function Directory() {
 
       <section className="px-6 md:px-12 py-16 max-w-screen-2xl mx-auto w-full">
         {loading ? (
-          <div role="status" aria-label="Cargando proyectos" className="flex justify-center py-24">
+          <div role="status" className="flex justify-center py-24">
+            <span className="sr-only">Cargando proyectos</span>
             <Loader2 aria-hidden="true" className="w-8 h-8 text-primary animate-spin" />
           </div>
         ) : (
