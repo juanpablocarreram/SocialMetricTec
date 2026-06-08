@@ -59,7 +59,7 @@ export default function Home() {
           >
             <span className="text-primary font-bold tracking-widest uppercase text-xs">Legado Institucional y Social</span>
             <h1 className="text-5xl md:text-7xl font-extrabold text-primary tracking-tighter leading-tight">
-              Construyendo el futuro a través del <span className="text-primary-container">impacto social</span>.
+              Construyendo el futuro a través del <span className="text-secondary">impacto social</span>.
             </h1>
             <p className="text-xl text-on-surface-variant leading-relaxed max-w-2xl font-light">
               Nuestra plataforma académica documenta, gestiona y potencializa las iniciativas que transforman realidades en México y el mundo.

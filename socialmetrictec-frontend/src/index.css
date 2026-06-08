@@ -62,7 +62,7 @@
 }
 
 .tonal-card:hover {
-  @apply bg-surface-container-lowest shadow-lg -translate-y-1;
+  @apply bg-primary-container shadow-lg -translate-y-1;
 }
 
 /* Print: aislar el reporte imprimible del resto de la UI */

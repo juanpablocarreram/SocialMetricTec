@@ -404,7 +404,7 @@ export default function AdminPanel() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       key={user.username}
-                      className="hover:bg-surface-container-lowest transition-colors group"
+                      className="hover:bg-primary/5 transition-colors group"
                     >
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
@@ -515,7 +515,7 @@ export default function AdminPanel() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       key={project.project_id}
-                      className="hover:bg-surface-container-lowest transition-colors group"
+                      className="hover:bg-primary/5 transition-colors group"
                     >
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
