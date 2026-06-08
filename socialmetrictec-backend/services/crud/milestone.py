@@ -4,6 +4,7 @@ from models.milestone import Milestone
 from models.project import Manages
 from schemas.milestone import MilestoneCreate, MilestoneUpdate
 from schemas.user import UserOut as UserOutSchema
+from services.crud.change_log import log_event
 
 
 def _is_authorized(db: Session, project_id: int, user: UserOutSchema) -> bool:
@@ -50,6 +51,8 @@ def update_milestone(db: Session, project_id: int, milestone_id: int, data: Mile
     if not milestone:
         return "no_encontrado"
 
+    editing_text = data.title is not None or data.description is not None
+
     if data.title is not None:
         milestone.title = data.title
     if data.description is not None:
@@ -57,6 +60,9 @@ def update_milestone(db: Session, project_id: int, milestone_id: int, data: Mile
     if data.is_completed is not None:
         milestone.is_completed = data.is_completed
         milestone.completed_at = datetime.utcnow() if data.is_completed else None
+
+    if editing_text:
+        log_event(db, project_id, "milestone_updated", milestone.title)
 
     db.commit()
     db.refresh(milestone)
