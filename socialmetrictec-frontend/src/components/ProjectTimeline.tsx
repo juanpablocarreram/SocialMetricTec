@@ -153,7 +153,8 @@ export default function ProjectTimeline({ changeLogs }: ProjectTimelineProps) {
                 )}
               >
                 <button
-                  onClick={() => hasChildren && toggle(publishEvent.log_id)}
+                  onClick={() => toggle(publishEvent.log_id)}
+                  disabled={!hasChildren}
                   className={cn(
                     'w-full flex items-center justify-between px-4 py-3 text-left',
                     hasChildren
