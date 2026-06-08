@@ -23,8 +23,18 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setIsDropdownOpen(false);
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) setIsProfileOpen(false);
     };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsDropdownOpen(false);
+        setIsProfileOpen(false);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const baseLinks = [
@@ -69,6 +79,10 @@ export default function Navbar() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                aria-expanded={isDropdownOpen}
+                aria-haspopup="listbox"
+                aria-controls="project-listbox"
+                aria-label={currentProject ? `Proyecto actual: ${currentProject.name}` : 'Seleccionar proyecto'}
                 className={cn(
                   'flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 border border-outline-variant/10 hover:bg-surface-container-low group',
                   isDropdownOpen ? 'bg-surface-container-low ring-2 ring-primary/20' : 'bg-transparent',
@@ -89,7 +103,7 @@ export default function Navbar() {
                         </div>
                       )}
                       <div className="absolute -bottom-1 -right-1 bg-primary text-white rounded-full p-0.5 shadow-sm border border-white">
-                        <ChevronDown className={cn('w-3 h-3 transition-transform duration-300', isDropdownOpen && 'rotate-180')} />
+                        <ChevronDown aria-hidden="true" className={cn('w-3 h-3 transition-transform duration-300', isDropdownOpen && 'rotate-180')} />
                       </div>
                     </div>
                     <div className="text-left">
@@ -99,15 +113,18 @@ export default function Navbar() {
                   </>
                 ) : (
                   <div className="flex items-center gap-2 text-outline">
-                    <Plus className="w-4 h-4" />
+                    <Plus aria-hidden="true" className="w-4 h-4" />
                     <span className="text-xs font-bold">Seleccionar proyecto</span>
-                    <ChevronDown className={cn('w-3 h-3 transition-transform duration-300', isDropdownOpen && 'rotate-180')} />
+                    <ChevronDown aria-hidden="true" className={cn('w-3 h-3 transition-transform duration-300', isDropdownOpen && 'rotate-180')} />
                   </div>
                 )}
               </button>
 
               {isDropdownOpen && (
                 <motion.div
+                  id="project-listbox"
+                  role="listbox"
+                  aria-label="Mis proyectos"
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.15 }}
@@ -122,6 +139,8 @@ export default function Navbar() {
                         {projects.map((project) => (
                           <button
                             key={project.id}
+                            role="option"
+                            aria-selected={currentProject?.id === project.id}
                             onClick={() => { setCurrentProject(project); setIsDropdownOpen(false); }}
                             className={cn(
                               'w-full flex items-center gap-3 p-3 rounded-xl transition-all group',
@@ -143,7 +162,7 @@ export default function Navbar() {
                             </div>
                             {currentProject?.id === project.id && (
                               <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-                                <Check className="w-3 h-3 text-white" />
+                                <Check aria-hidden="true" className="w-3 h-3 text-white" />
                               </div>
                             )}
                           </button>
