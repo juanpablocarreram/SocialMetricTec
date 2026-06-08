@@ -6,13 +6,14 @@ from models.project import Project, Manages
 from schemas.project import Project as ProjectSchema
 from schemas.page import Page
 from schemas.user import UserOut as UserOutSchema
+from services.crud.change_log import log_event
 
-""" Hace la query a la base de datos que retorna el registro con todo el proyecto """
+
 def get_project_from_db(db: Session, id_project: int):
     return db.query(Project).filter(Project.project_id == id_project).first()
 
-""" Hace la insercion en la base de datos de un proyecto con la informacion """
-def create_project_in_db(db: Session,project_info: ProjectSchema,user: UserOutSchema):
+
+def create_project_in_db(db: Session, project_info: ProjectSchema, user: UserOutSchema):
     try:
         new_project = Project(
             project_name=project_info.project_name,
@@ -24,18 +25,18 @@ def create_project_in_db(db: Session,project_info: ProjectSchema,user: UserOutSc
             numero_beneficiarios=project_info.numero_beneficiarios,
         )
         db.add(new_project)
-        db.flush() 
+        db.flush()
 
         new_manage = Manages(
-            username = user.username,
-            project_id = new_project.project_id
+            username=user.username,
+            project_id=new_project.project_id
         )
         db.add(new_manage)
-        
-        db.commit() # Aquí se hacen permanentes AMBOS
+
+        db.commit()
         db.refresh(new_project)
         return new_project
-    
+
     except IntegrityError:
         db.rollback()
         raise HTTPException(
@@ -43,19 +44,17 @@ def create_project_in_db(db: Session,project_info: ProjectSchema,user: UserOutSc
             detail=f"El proyecto con el nombre '{project_info.project_name}' ya existe."
         )
     except Exception as e:
-        db.rollback() # Si algo falló arriba, cancela TODO lo pendiente
-        raise e # Lanza el error para que FastAPI lo maneje
-""" Elimina un proyecto que si existe en la base """
-def delete_project_in_db(db: Session, project_id:int, current_user:UserOutSchema):
+        db.rollback()
+        raise e
+
+
+def delete_project_in_db(db: Session, project_id: int, current_user: UserOutSchema):
     db_project = db.query(Project).filter(Project.project_id == project_id).first()
     if not db_project:
         return "no_encontrado"
     if not current_user.is_admin:
         return "acceso_denegado"
 
-    # Proceder con la eliminación
-    # Gracias al ON DELETE CASCADE en tu SQL, esto borra:
-    # El proyecto + filas en manages + métricas + beneficiarios + tags asociados.
     try:
         db.delete(db_project)
         db.commit()
@@ -63,6 +62,8 @@ def delete_project_in_db(db: Session, project_id:int, current_user:UserOutSchema
     except Exception as e:
         db.rollback()
         raise e
+
+
 def list_all_projects(db: Session):
     return db.query(
         Project.project_id,
@@ -110,6 +111,23 @@ def update_project_page_in_db(db: Session, project_id: int, page_data: Page, use
         return "acceso_denegado"
 
     project.page = _page_with_edit_log(project.page, page_data.model_dump())
+    log_event(db, project_id, "page_edited")
+    db.commit()
+    db.refresh(project)
+    return project
+
+
+def toggle_project_status(db: Session, project_id: int, user: UserOutSchema):
+    if not user.is_admin:
+        return "acceso_denegado"
+
+    project = db.query(Project).filter(Project.project_id == project_id).first()
+    if not project:
+        return "no_encontrado"
+
+    project.is_active = not project.is_active
+    event_type = "project_activated" if project.is_active else "project_deactivated"
+    log_event(db, project_id, event_type)
     db.commit()
     db.refresh(project)
     return project
