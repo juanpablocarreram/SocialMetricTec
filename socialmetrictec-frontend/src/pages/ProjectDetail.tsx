@@ -87,7 +87,6 @@ export default function ProjectDetail() {
   const secondaryColor = styles.secondaryColor ?? '#525d85';
   const fontFamily = styles.fontFamily ?? 'Manrope';
   const blocks: BackendBlock[] = page?.blocks ?? [];
-  const editLog: string[] = page?.general_props?.edit_log ?? [];
 
   const defaultHero = (
     <section className="relative h-[70vh] w-full bg-slate-900 overflow-hidden">
@@ -344,17 +343,10 @@ export default function ProjectDetail() {
                 Evolución
               </span>
               <h2 className="text-3xl font-extrabold tracking-tighter mt-2" style={{ color: 'var(--p-primary)' }}>
-                Línea de Tiempo
+                Publicaciones y Eventos
               </h2>
             </div>
-            <ProjectTimeline
-              createdAt={project.created_at}
-              editLog={editLog}
-              testimonies={testimonies}
-              photos={photos}
-              milestones={milestones}
-              changeLogs={changeLogs}
-            />
+            <ProjectTimeline changeLogs={changeLogs} />
           </div>
         </section>
       )}
