@@ -52,15 +52,14 @@ export default function Navbar() {
     : 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg';
 
   return (
-    <header className="w-full sticky top-0 z-50 glass-header border-b border-outline-variant/10 bg-white/80 backdrop-blur-md">
+    <header className="w-full sticky top-0 z-[100] glass-header border-b border-outline-variant/10 bg-white/80 backdrop-blur-md">
       <nav className="flex justify-between items-center px-6 md:px-12 py-3 max-w-screen-2xl mx-auto">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-3 group shrink-0">
             <img
-              alt="Tec de Monterrey Logo"
-              className="h-8 w-auto object-contain transition-transform group-hover:scale-110"
-              src="https://upload.wikimedia.org/wikipedia/commons/4/47/Logo_del_ITESM.svg"
-              referrerPolicy="no-referrer"
+              alt="SocialMetricTec Logo"
+              className="h-9 w-auto object-contain transition-transform group-hover:scale-110"
+              src="/logo.svg"
             />
             <span className="text-xl font-bold text-primary tracking-tighter font-headline hidden lg:block">
               SocialMetricTec

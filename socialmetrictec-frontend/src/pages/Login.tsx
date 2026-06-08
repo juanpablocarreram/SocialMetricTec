@@ -116,11 +116,10 @@ export default function Login() {
       {/* Header */}
       <header className="w-full px-6 md:px-12 py-6 flex justify-between items-center bg-white/50 backdrop-blur-sm">
         <Link to="/" className="flex items-center gap-3 group">
-          <img 
-            alt="Tec de Monterrey Logo" 
-            className="h-8 w-auto object-contain" 
-            src="https://upload.wikimedia.org/wikipedia/commons/4/47/Logo_del_ITESM.svg"
-            referrerPolicy="no-referrer"
+          <img
+            alt="SocialMetricTec Logo"
+            className="h-10 w-auto object-contain"
+            src="/logo.svg"
           />
           <span className="text-xl font-bold text-primary tracking-tighter font-headline">
             SocialMetricTec

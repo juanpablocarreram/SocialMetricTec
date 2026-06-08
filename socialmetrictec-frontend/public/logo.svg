@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 340" fill="none">
+  <!-- Teal — top left -->
+  <rect x="0" y="0" width="100" height="100" rx="20" fill="#0BA599"/>
+  <!-- Orange — top right -->
+  <rect x="120" y="0" width="100" height="100" rx="20" fill="#E89018"/>
+  <!-- Coral / Red — mid left -->
+  <rect x="0" y="120" width="100" height="100" rx="20" fill="#E0564E"/>
+  <!-- Purple — mid right -->
+  <rect x="120" y="120" width="100" height="100" rx="20" fill="#7C30AA"/>
+  <!-- Empty circle — bottom left -->
+  <circle cx="50" cy="290" r="46" stroke="#CCCCCC" stroke-width="3" fill="white"/>
+  <!-- Blue — bottom right -->
+  <rect x="120" y="240" width="100" height="100" rx="20" fill="#5A8FBE"/>
+</svg>

@@ -102,10 +102,9 @@ export default function ProjectReport() {
         <header className="px-12 pt-12 pb-8" style={{ borderTop: `8px solid ${template.accent}` }}>
           <div className="flex items-center justify-between mb-10">
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/4/47/Logo_del_ITESM.svg"
-              alt="Tec de Monterrey"
-              className="h-8"
-              referrerPolicy="no-referrer"
+              src="/logo.svg"
+              alt="SocialMetricTec"
+              className="h-10 w-auto object-contain"
             />
             <span className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: template.accent }}>
               Reporte de Impacto Social
