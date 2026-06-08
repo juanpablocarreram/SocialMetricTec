@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { withOpacity } from '@/src/lib/utils';
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -25,6 +25,7 @@ const withProtocol = (url?: string) =>
   !url || /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
 export default function ProjectDetail() {
+  const rm = useReducedMotion();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [project, setProject] = useState<Awaited<ReturnType<typeof getProject>> | null>(null);
@@ -68,7 +69,10 @@ export default function ProjectDetail() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <div role="status" className="flex justify-center py-24">
+          <span className="sr-only">Cargando proyecto</span>
+          <Loader2 aria-hidden="true" className="w-8 h-8 text-primary animate-spin" />
+        </div>
       </div>
     );
   }
@@ -168,6 +172,7 @@ export default function ProjectDetail() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: rm ? 0 : 0.5, delay: rm ? 0 : 0 }}
             className="flex items-center gap-5 sm:gap-6 rounded-3xl text-white p-6 sm:p-8"
             style={{ backgroundColor: 'var(--p-primary)', boxShadow: `0 25px 60px -30px ${withOpacity(primaryColor, 0.7)}` }}
           >
@@ -199,7 +204,7 @@ export default function ProjectDetail() {
                   key={photo.photo_id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: idx * 0.05 }}
+                  transition={{ delay: rm ? 0 : idx * 0.05 }}
                   className="aspect-square rounded-2xl overflow-hidden group relative"
                 >
                   <img src={photo.url} alt={photo.caption ?? ''} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -234,7 +239,7 @@ export default function ProjectDetail() {
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.07, ease: 'easeOut' }}
+                  transition={{ delay: rm ? 0 : i * 0.07, ease: 'easeOut' }}
                   className="group relative flex flex-col bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-outline-variant/10 hover:border-primary/30 hover:shadow-[0_20px_50px_-25px_rgba(124,48,170,0.25)] transition-all duration-300"
                 >
                   <span
@@ -299,7 +304,7 @@ export default function ProjectDetail() {
                   initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.06 }}
+                  transition={{ delay: rm ? 0 : i * 0.06 }}
                   className={`flex items-start gap-3 rounded-2xl p-5 border ${
                     m.is_completed
                       ? 'bg-surface-container-lowest border-outline-variant/10'
@@ -368,6 +373,7 @@ export default function ProjectDetail() {
 }
 
 function LeaderCard({ leader, index, primaryColor }: { leader: ProjectLeader; index: number; primaryColor: string }) {
+  const rm = useReducedMotion();
   const [expanded, setExpanded] = useState(false);
   const p = leader.profile ?? {};
 
@@ -390,7 +396,7 @@ function LeaderCard({ leader, index, primaryColor }: { leader: ProjectLeader; in
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.08, ease: 'easeOut' }}
+      transition={{ delay: rm ? 0 : index * 0.08, ease: 'easeOut' }}
       className="group relative bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_-20px_rgba(124,48,170,0.3)] transition-all duration-300 overflow-hidden flex flex-col"
     >
       <div
@@ -427,7 +433,7 @@ function LeaderCard({ leader, index, primaryColor }: { leader: ProjectLeader; in
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  transition={{ duration: rm ? 0 : 0.25, ease: 'easeOut' }}
                   className="overflow-hidden"
                 >
                   {socials.length > 0 && (
@@ -468,11 +474,13 @@ function LeaderCard({ leader, index, primaryColor }: { leader: ProjectLeader; in
 
             <button
               onClick={() => setExpanded((v) => !v)}
+              aria-expanded={expanded}
+              aria-label={expanded ? `Ver menos del perfil de ${leader.username}` : `Ver perfil de ${leader.username}`}
               className="mt-5 self-start inline-flex items-center gap-1.5 text-xs font-bold hover:gap-2.5 transition-all"
               style={{ color: primaryColor }}
             >
               {expanded ? 'Ver menos' : 'Ver más'}
-              <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+              <ChevronDown aria-hidden="true" className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
             </button>
           </>
         )}
