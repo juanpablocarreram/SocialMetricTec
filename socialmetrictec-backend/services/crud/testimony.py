@@ -2,8 +2,9 @@ from datetime import date, datetime, time
 from sqlalchemy.orm import Session
 from models.testimony import Testimony, TestimonyTag
 from models.project import Manages
-from schemas.testimony import TestimonyCreate
+from schemas.testimony import TestimonyCreate, TestimonyUpdate
 from schemas.user import UserOut as UserOutSchema
+from services.crud.change_log import log_event
 
 
 def is_authorized_for_project(db: Session, project_id: int, user: UserOutSchema) -> bool:
@@ -52,6 +53,7 @@ def create_testimony(db: Session, project_id: int, data: TestimonyCreate, user: 
     for tag in data.tags:
         db.add(TestimonyTag(testimony_id=testimony.testimony_id, tag_name=tag))
 
+    log_event(db, project_id, "testimony_created", data.display_name or user.username)
     db.commit()
     db.refresh(testimony)
     return testimony
@@ -69,6 +71,32 @@ def update_testimony_display_name(db: Session, testimony_id: int, display_name: 
     return testimony
 
 
+def update_testimony(db: Session, testimony_id: int, data: TestimonyUpdate, user: UserOutSchema) -> Testimony | str:
+    testimony = db.query(Testimony).filter(Testimony.testimony_id == testimony_id).first()
+    if not testimony:
+        return "no_encontrado"
+    if not user.is_admin and testimony.author_username != user.username:
+        return "acceso_denegado"
+
+    fields = data.model_dump(exclude_unset=True)
+
+    if "display_name" in fields:
+        testimony.display_name = fields["display_name"] or None
+    if "content" in fields:
+        testimony.content = fields["content"]
+    if "category" in fields:
+        testimony.category = fields["category"]
+    if "tags" in fields:
+        db.query(TestimonyTag).filter(TestimonyTag.testimony_id == testimony_id).delete()
+        for tag in fields["tags"]:
+            db.add(TestimonyTag(testimony_id=testimony_id, tag_name=tag))
+
+    log_event(db, testimony.project_id, "testimony_updated", testimony.display_name or testimony.author_username)
+    db.commit()
+    db.refresh(testimony)
+    return testimony
+
+
 def delete_testimony(db: Session, testimony_id: int, user: UserOutSchema) -> str:
     testimony = db.query(Testimony).filter(Testimony.testimony_id == testimony_id).first()
     if not testimony:
@@ -76,6 +104,9 @@ def delete_testimony(db: Session, testimony_id: int, user: UserOutSchema) -> str
     if not user.is_admin and testimony.author_username != user.username:
         return "acceso_denegado"
 
+    project_id = testimony.project_id
+    name = testimony.display_name or testimony.author_username
+    log_event(db, project_id, "testimony_deleted", name)
     db.delete(testimony)
     db.commit()
     return "exito"

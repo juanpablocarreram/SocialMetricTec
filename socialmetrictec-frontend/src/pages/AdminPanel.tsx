@@ -842,10 +842,10 @@ export default function AdminPanel() {
                             <span className="text-sm font-medium text-primary truncate">{project.project_name}</span>
                             <button
                               onClick={() => removeProject(project.project_id)}
-                              className="p-1.5 text-outline-variant hover:text-error hover:bg-error/5 rounded-lg transition-all shrink-0 ml-2"
+                              className="p-1.5 text-error/70 hover:text-error hover:bg-error/10 rounded-lg transition-all shrink-0 ml-2"
                               title="Quitar del proyecto"
                             >
-                              <Minus className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         ))}

@@ -6,7 +6,7 @@ import {
   getTestimonies,
   createTestimony,
   deleteTestimony,
-  patchTestimonyDisplayName,
+  patchTestimony,
   importTestimoniesCSV,
   TestimonyOut,
   CsvImportResult,
@@ -14,7 +14,7 @@ import {
 } from '@/src/services/testimonyService';
 import { useAuth } from '../../context/AuthContext';
 
-type ModalView = 'choice' | 'manual' | 'csv' | null;
+type ModalView = 'choice' | 'manual' | 'csv' | 'edit' | null;
 
 export default function TestimoniesManager({ projectId }: { projectId: number }) {
   const { user } = useAuth();
@@ -32,9 +32,15 @@ export default function TestimoniesManager({ projectId }: { projectId: number })
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
-  // inline name editing
-  const [editingNameId, setEditingNameId] = useState<number | null>(null);
-  const [editingNameValue, setEditingNameValue] = useState('');
+  // edit modal
+  const [editingTestimony, setEditingTestimony] = useState<TestimonyOut | null>(null);
+  const [editDisplayName, setEditDisplayName] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editTags, setEditTags] = useState<string[]>([]);
+  const [editTagInput, setEditTagInput] = useState('');
+  const [editFormError, setEditFormError] = useState('');
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   // csv
   const [csvFile, setCsvFile] = useState<File | null>(null);
@@ -113,14 +119,46 @@ export default function TestimoniesManager({ projectId }: { projectId: number })
     URL.revokeObjectURL(url);
   };
 
-  const startEditingName = (t: TestimonyOut) => { setEditingNameId(t.testimony_id); setEditingNameValue(t.display_name ?? t.author_username); };
+  const openEditModal = (t: TestimonyOut) => {
+    setEditingTestimony(t);
+    setEditDisplayName(t.display_name ?? '');
+    setEditContent(t.content);
+    setEditCategory(t.category ?? '');
+    setEditTags(t.tags);
+    setEditTagInput('');
+    setEditFormError('');
+    setModalView('edit');
+  };
 
-  const saveDisplayName = async (testimonyId: number) => {
+  const editAddTag = () => {
+    const tag = editTagInput.trim();
+    if (!tag || editTags.includes(tag)) return;
+    if (tag.length < 2 || tag.length > 30) { setEditFormError('Cada etiqueta debe tener entre 2 y 30 caracteres.'); return; }
+    if (editTags.length >= 10) { setEditFormError('Máximo 10 etiquetas.'); return; }
+    setEditTags([...editTags, tag]);
+    setEditTagInput('');
+    setEditFormError('');
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTestimony) return;
+    if (editContent.trim().length < 50) { setEditFormError('El testimonio debe tener al menos 50 caracteres.'); return; }
+    setEditSubmitting(true);
     try {
-      const updated = await patchTestimonyDisplayName(projectId, testimonyId, editingNameValue.trim() || null);
-      setTestimonies((prev) => prev.map((t) => t.testimony_id === testimonyId ? updated : t));
-    } catch (err) { console.error(err); }
-    finally { setEditingNameId(null); }
+      const updated = await patchTestimony(projectId, editingTestimony.testimony_id, {
+        display_name: editDisplayName.trim() || null,
+        content: editContent.trim(),
+        category: editCategory || null,
+        tags: editTags,
+      });
+      setTestimonies((prev) => prev.map((t) => t.testimony_id === updated.testimony_id ? updated : t));
+      closeModal();
+    } catch (err: any) {
+      setEditFormError(err?.response?.data?.detail ?? 'Error al actualizar el testimonio.');
+    } finally {
+      setEditSubmitting(false);
+    }
   };
 
   const handleDelete = async (testimonyId: number) => {
@@ -160,7 +198,6 @@ export default function TestimoniesManager({ projectId }: { projectId: number })
           {testimonies.map((t) => {
             const name = t.display_name ?? t.author_username;
             const canEdit = user?.is_admin || user?.username === t.author_username;
-            const isEditingName = editingNameId === t.testimony_id;
             return (
               <div key={t.testimony_id} className="relative bg-white rounded-2xl border border-outline-variant/10 shadow-sm group overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-primary/20 group-hover:bg-primary/50 transition-colors" />
@@ -171,37 +208,21 @@ export default function TestimoniesManager({ projectId }: { projectId: number })
                         <span className="text-xs font-extrabold text-primary">{name.slice(0, 2).toUpperCase()}</span>
                       </div>
                       <div>
-                        {isEditingName ? (
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              autoFocus
-                              value={editingNameValue}
-                              onChange={(e) => setEditingNameValue(e.target.value)}
-                              onKeyDown={(e) => { if (e.key === 'Enter') saveDisplayName(t.testimony_id); if (e.key === 'Escape') setEditingNameId(null); }}
-                              className="text-sm font-bold text-primary bg-surface-container-lowest border border-primary/30 rounded-lg px-2 py-0.5 outline-none focus:ring-2 focus:ring-primary/30 w-44"
-                            />
-                            <button onClick={() => saveDisplayName(t.testimony_id)} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"><Check className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => setEditingNameId(null)} className="p-1 text-outline hover:bg-surface-container-low rounded-lg transition-colors"><X className="w-3.5 h-3.5" /></button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5">
-                            <p className="text-sm font-bold text-primary">{name}</p>
-                            {canEdit && (
-                              <button onClick={() => startEditingName(t)} className="opacity-0 group-hover:opacity-100 p-1 text-outline hover:text-primary transition-all rounded-lg hover:bg-surface-container-low">
-                                <Pencil className="w-3 h-3 cursor-pointer" />
-                              </button>
-                            )}
-                          </div>
-                        )}
+                        <p className="text-sm font-bold text-primary">{name}</p>
                         <p className="text-[10px] text-outline mt-0.5">{new Date(t.created_at).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {t.category && <span className="text-[9px] font-bold uppercase tracking-widest bg-primary/5 text-primary px-3 py-1 rounded-full border border-primary/10">{t.category}</span>}
                       {canEdit && (
-                        <button onClick={() => handleDelete(t.testimony_id)} className="opacity-0 group-hover:opacity-100 p-1.5 text-outline hover:text-error transition-all rounded-lg hover:bg-error/5">
-                          <Trash2 className="w-4 h-4 cursor-pointer" />
-                        </button>
+                        <>
+                          <button onClick={() => openEditModal(t)} className="opacity-0 group-hover:opacity-100 p-1.5 text-outline hover:text-primary transition-all rounded-lg hover:bg-surface-container-low">
+                            <Pencil className="w-4 h-4 cursor-pointer" />
+                          </button>
+                          <button onClick={() => handleDelete(t.testimony_id)} className="opacity-0 group-hover:opacity-100 p-1.5 text-outline hover:text-error transition-all rounded-lg hover:bg-error/5">
+                            <Trash2 className="w-4 h-4 cursor-pointer" />
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -237,7 +258,7 @@ export default function TestimoniesManager({ projectId }: { projectId: number })
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className={cn(
               'relative bg-white rounded-[32px] shadow-2xl p-10 max-h-[90vh] overflow-y-auto w-full',
-              modalView === 'csv' ? 'max-w-2xl' : 'max-w-xl',
+              modalView === 'csv' || modalView === 'edit' ? 'max-w-2xl' : 'max-w-xl',
             )}
           >
             {/* Cerrar */}
@@ -374,6 +395,101 @@ export default function TestimoniesManager({ projectId }: { projectId: number })
                     <button type="submit" disabled={submitting || content.trim().length < 50} className="flex-grow py-4 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60">
                       {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                       Enviar Testimonio
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* ── Edit ── */}
+            {modalView === 'edit' && editingTestimony && (
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-3xl font-extrabold text-primary tracking-tighter">Editar Testimonio</h2>
+                  <p className="text-on-surface-variant font-light text-sm mt-2">Modifica cualquier campo del testimonio.</p>
+                </div>
+                <form onSubmit={handleUpdate} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Nombre del autor</label>
+                    <input
+                      type="text"
+                      value={editDisplayName}
+                      onChange={(e) => setEditDisplayName(e.target.value)}
+                      placeholder={editingTestimony.author_username}
+                      maxLength={255}
+                      className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Testimonio</label>
+                      <span className={cn('text-[10px] font-bold', editContent.trim().length < 50 ? 'text-error' : 'text-emerald-600')}>
+                        {editContent.trim().length} / 50 mín · {5000 - editContent.length} restantes
+                      </span>
+                    </div>
+                    <textarea
+                      required
+                      rows={6}
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      maxLength={5000}
+                      className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary outline-none resize-none leading-relaxed transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Categoría</label>
+                    <div className="flex flex-wrap gap-2">
+                      {CATEGORIES.map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setEditCategory(editCategory === cat ? '' : cat)}
+                          className={cn(
+                            'px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all border',
+                            editCategory === cat ? 'bg-primary text-white border-primary' : 'bg-surface-container-low text-on-surface-variant border-transparent hover:border-outline-variant/30',
+                          )}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Etiquetas ({editTags.length}/10)</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editTagInput}
+                        onChange={(e) => setEditTagInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); editAddTag(); } }}
+                        placeholder="Escribe y presiona Enter o +"
+                        maxLength={30}
+                        disabled={editTags.length >= 10}
+                        className="flex-grow bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary outline-none disabled:opacity-50"
+                      />
+                      <button type="button" onClick={editAddTag} disabled={editTags.length >= 10} className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary/20 transition-colors disabled:opacity-40">
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {editTags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {editTags.map((tag) => (
+                          <span key={tag} className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold">
+                            {tag}
+                            <button type="button" onClick={() => setEditTags(editTags.filter((x) => x !== tag))}><X className="w-3 h-3" /></button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {editFormError && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-error font-medium">{editFormError}</motion.p>}
+                  <div className="pt-4 flex gap-3">
+                    <button type="button" onClick={closeModal} className="flex-grow py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-low rounded-2xl transition-all">
+                      Cancelar
+                    </button>
+                    <button type="submit" disabled={editSubmitting || editContent.trim().length < 50} className="flex-grow py-4 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60">
+                      {editSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                      Guardar Cambios
                     </button>
                   </div>
                 </form>

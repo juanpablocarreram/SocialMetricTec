@@ -12,11 +12,13 @@ from services.crud.testimony import (
     create_testimony,
     delete_testimony,
     update_testimony_display_name,
+    update_testimony,
     get_testimonies_for_project,
     get_all_testimonies,
     is_authorized_for_project,
 )
 from services.crud.export_log import record_export, get_export_logs
+from services.crud.change_log import log_event
 from routes.deps import get_current_user_from_token, get_admin_user
 from db.database import get_db
 
@@ -56,7 +58,7 @@ def update_testimony_route(
     db: Session = Depends(get_db),
     user: UserOut = Depends(get_current_user_from_token),
 ):
-    result = update_testimony_display_name(db, testimony_id, data.display_name, user)
+    result = update_testimony(db, testimony_id, data, user)
     _raise_for_error(result)
     return _serialize(result)
 
@@ -158,6 +160,8 @@ async def import_testimonies_csv_route(
             db.add(TestimonyTag(testimony_id=testimony.testimony_id, tag_name=tag))
         created_count += 1
 
+    if created_count > 0:
+        log_event(db, project_id, "testimony_imported", str(created_count))
     db.commit()
     return CsvImportResult(created=created_count, errors=row_errors)
 

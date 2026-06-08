@@ -35,6 +35,7 @@ def create_milestone(db: Session, project_id: int, data: MilestoneCreate, user: 
         description=data.description,
     )
     db.add(milestone)
+    log_event(db, project_id, "milestone_created", data.title)
     db.commit()
     db.refresh(milestone)
     return milestone
@@ -60,6 +61,8 @@ def update_milestone(db: Session, project_id: int, milestone_id: int, data: Mile
     if data.is_completed is not None:
         milestone.is_completed = data.is_completed
         milestone.completed_at = datetime.utcnow() if data.is_completed else None
+        event = "milestone_completed" if data.is_completed else "milestone_uncompleted"
+        log_event(db, project_id, event, milestone.title)
 
     if editing_text:
         log_event(db, project_id, "milestone_updated", milestone.title)
@@ -80,6 +83,8 @@ def delete_milestone(db: Session, project_id: int, milestone_id: int, user: User
     if not milestone:
         return "no_encontrado"
 
+    title = milestone.title
+    log_event(db, project_id, "milestone_deleted", title)
     db.delete(milestone)
     db.commit()
     return "exito"

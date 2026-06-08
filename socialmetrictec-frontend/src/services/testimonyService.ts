@@ -47,6 +47,22 @@ export const patchTestimonyDisplayName = async (
   return res.data;
 };
 
+export interface TestimonyUpdate {
+  display_name?: string | null;
+  content?: string;
+  category?: string | null;
+  tags?: string[];
+}
+
+export const patchTestimony = async (
+  projectId: number,
+  testimonyId: number,
+  data: TestimonyUpdate,
+): Promise<TestimonyOut> => {
+  const res = await api.patch(`/project/${projectId}/testimonies/${testimonyId}`, data);
+  return res.data;
+};
+
 export const deleteTestimony = async (projectId: number, testimonyId: number): Promise<void> => {
   await api.delete(`/project/${projectId}/testimonies/${testimonyId}`);
 };

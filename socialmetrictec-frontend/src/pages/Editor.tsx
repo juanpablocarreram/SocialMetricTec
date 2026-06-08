@@ -324,27 +324,79 @@ function TextSection({ section, onChange, fontFamily }: {
 }
 
 function ImageSection({ section, onChange }: { section: Section; onChange: (s: Partial<Section>) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError('');
+    try {
+      const { uploadMediaStandalone } = await import('@/src/services/mediaService');
+      const { url } = await uploadMediaStandalone(file);
+      onChange({ url });
+    } catch {
+      setUploadError('No se pudo subir la imagen.');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
   return (
     <div className="space-y-4">
       {section.url ? (
-        <img src={section.url} alt="" className="w-full aspect-video object-cover rounded-xl" />
-      ) : (
-        <div className="w-full aspect-video rounded-xl bg-surface-container flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/20 gap-3">
-          <ImageIcon className="w-10 h-10 text-outline/30" />
-          <p className="text-sm text-outline/40">Sube una imagen o pega su URL abajo</p>
+        <div
+          className="relative group w-full aspect-video rounded-xl overflow-hidden cursor-pointer"
+          onClick={() => fileInputRef.current?.click()}
+          title="Haz clic para cambiar la imagen"
+        >
+          <img src={section.url} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+            <ImageIcon className="w-8 h-8 text-white" />
+            <span className="text-white text-sm font-semibold">Cambiar imagen</span>
+          </div>
         </div>
+      ) : (
+        <button
+          type="button"
+          disabled={uploading}
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full aspect-video rounded-xl bg-surface-container flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/20 gap-3 cursor-pointer transition-all hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.01] group disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {uploading ? (
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+          ) : (
+            <ImageIcon className="w-10 h-10 text-outline/30 group-hover:text-primary/60 transition-colors" />
+          )}
+          <p className="text-sm text-outline/40 group-hover:text-primary/70 transition-colors font-medium">
+            {uploading ? 'Subiendo imagen...' : 'Haz clic para subir una imagen'}
+          </p>
+          {!uploading && (
+            <span className="text-xs text-outline/25 group-hover:text-primary/40 transition-colors">
+              JPG, PNG, WebP o GIF
+            </span>
+          )}
+        </button>
       )}
+      {uploadError && (
+        <p className="text-xs text-error font-bold uppercase tracking-widest">{uploadError}</p>
+      )}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        onChange={handleFileChange}
+        className="hidden"
+      />
       <input
         type="url"
         value={section.url ?? ''}
         onChange={(e) => onChange({ url: e.target.value })}
         placeholder="URL de la imagen (https://...)"
         className="w-full text-sm bg-surface-container-low rounded-xl px-4 py-3 outline-none border border-outline-variant/20 focus:border-primary/40 transition-colors placeholder:text-outline/30 font-mono"
-      />
-      <UploadButton
-        label="Subir imagen"
-        accept="image/jpeg,image/png,image/webp,image/gif"
-        onUploaded={(url) => onChange({ url })}
       />
       <input
         type="text"

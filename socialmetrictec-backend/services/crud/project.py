@@ -111,11 +111,16 @@ def update_project_page_in_db(db: Session, project_id: int, page_data: Page, use
         return "acceso_denegado"
 
     new_page = page_data.model_dump()
-    old_blocks = (project.page or {}).get("blocks", []) if isinstance(project.page, dict) else []
+    old_page_dict = project.page if isinstance(project.page, dict) else {}
+    old_blocks = old_page_dict.get("blocks", [])
     new_blocks = new_page.get("blocks", [])
 
     for block_event, block_type in _diff_blocks(old_blocks, new_blocks):
         log_event(db, project_id, block_event, entity_name=block_type)
+
+    palette_entity = _diff_styles(old_page_dict, new_page)
+    if palette_entity is not None:
+        log_event(db, project_id, "palette_updated", palette_entity)
 
     project.page = _page_with_edit_log(project.page, new_page)
     log_event(db, project_id, "page_edited")
@@ -148,6 +153,23 @@ def _page_with_edit_log(previous_page, new_page: dict) -> dict:
     general_props["edit_log"] = ([*previous_log, datetime.utcnow().isoformat()])[-50:]
     new_page["general_props"] = general_props
     return new_page
+
+
+_STYLE_LABELS = {
+    'primaryColor': 'color primario',
+    'secondaryColor': 'color secundario',
+    'fontFamily': 'tipografía',
+}
+
+
+def _diff_styles(old_page: dict, new_page: dict) -> str | None:
+    old_styles = old_page.get("general_props", {}).get("styles", {})
+    new_styles = new_page.get("general_props", {}).get("styles", {})
+    all_keys = set(old_styles) | set(new_styles)
+    changed = [_STYLE_LABELS.get(k, k) for k in all_keys if old_styles.get(k) != new_styles.get(k)]
+    if not changed:
+        return None
+    return ", ".join(changed)
 
 
 def _diff_blocks(old_blocks: list, new_blocks: list) -> list[tuple[str, str]]:
