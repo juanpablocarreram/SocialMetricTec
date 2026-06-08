@@ -28,7 +28,7 @@ function AppContent() {
   // no mostramos nada de la app todavía.
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div role="status" aria-live="polite" className="flex h-screen items-center justify-center">
         <div className="loader">Cargando SocialTec...</div>
       </div>
     );
@@ -36,8 +36,14 @@ function AppContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[200] focus:bg-primary focus:text-on-primary focus:px-4 focus:py-2 focus:rounded-md focus:font-bold focus:text-sm"
+      >
+        Saltar al contenido principal
+      </a>
       {!isLoginPage && <Navbar />}
-      <main className="flex-grow">
+      <main id="main-content" className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/directory" element={<Directory />} />
