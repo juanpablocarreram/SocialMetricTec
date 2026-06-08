@@ -6,35 +6,40 @@
   --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-label: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --color-primary: #002068;
+  --color-primary: #7C30AA;
   --color-on-primary: #ffffff;
-  --color-primary-container: #003399;
-  --color-on-primary-container: #8aa4ff;
-  
-  --color-secondary: #525d85;
+  --color-primary-container: #F0EAFF;
+  --color-on-primary-container: #7C30AA;
+
+  --color-secondary: #9B59B6;
   --color-on-secondary: #ffffff;
-  --color-secondary-container: #c5d0fe;
-  
-  --color-tertiary: #4f1100;
-  --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #751d00;
-  
-  --color-surface: #f7f9fc;
-  --color-on-surface: #191c1e;
-  --color-surface-variant: #e0e3e6;
-  --color-on-surface-variant: #444653;
-  
+  --color-secondary-container: #E8E0F7;
+
+  --color-surface: #F8F5FF;
+  --color-on-surface: #111827;
+  --color-surface-variant: #E8E0F7;
+  --color-on-surface-variant: #6B7280;
+
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f2f4f7;
-  --color-surface-container: #eceef1;
-  --color-surface-container-high: #e6e8eb;
-  --color-surface-container-highest: #e0e3e6;
-  
-  --color-outline: #747684;
-  --color-outline-variant: #c4c5d5;
-  
-  --color-error: #ba1a1a;
+  --color-surface-container-low: #F4F0FF;
+  --color-surface-container: #F0EAFF;
+  --color-surface-container-high: #E8E0F7;
+  --color-surface-container-highest: #DDD6F3;
+
+  --color-outline: #9B8BB5;
+  --color-outline-variant: #DDD6F3;
+
+  --color-error: #E0564E;
   --color-on-error: #ffffff;
+
+  --color-success: #0BA599;
+  --color-on-success: #ffffff;
+
+  --color-warning: #E89018;
+  --color-on-warning: #ffffff;
+
+  --color-info: #5A8FBE;
+  --color-on-info: #ffffff;
 }
 
 @layer base {
