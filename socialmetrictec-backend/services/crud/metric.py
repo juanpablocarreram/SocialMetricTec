@@ -3,6 +3,7 @@ from models.metric import Metric, SubMetric
 from models.project import Manages
 from schemas.metric import MetricCreate, MetricUpdate, SubMetricCreate, SubMetricUpdate
 from schemas.user import UserOut as UserOutSchema
+from services.crud.change_log import log_event
 
 
 def _is_authorized(db: Session, project_id: int, user: UserOutSchema) -> bool:
@@ -33,6 +34,7 @@ def create_metric(db: Session, project_id: int, data: MetricCreate, user: UserOu
             metric_id=metric.metric_id
         ))
 
+    log_event(db, project_id, "metric_created", data.metric_title)
     db.commit()
     db.refresh(metric)
     return metric
@@ -46,6 +48,7 @@ def update_metric(db: Session, metric_id: int, data: MetricUpdate, user: UserOut
         return "acceso_denegado"
 
     metric.metric_title = data.metric_title
+    log_event(db, metric.project_id, "metric_updated", data.metric_title)
     db.commit()
     db.refresh(metric)
     return metric
@@ -58,6 +61,9 @@ def delete_metric(db: Session, metric_id: int, user: UserOutSchema) -> str:
     if not _is_authorized(db, metric.project_id, user):
         return "acceso_denegado"
 
+    project_id = metric.project_id
+    title = metric.metric_title
+    log_event(db, project_id, "metric_deleted", title)
     db.delete(metric)
     db.commit()
     return "exito"
