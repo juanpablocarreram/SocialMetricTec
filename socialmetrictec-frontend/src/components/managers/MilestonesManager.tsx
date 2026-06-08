@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Loader2, Flag, CheckCircle2, Circle } from 'lucide-react';
+import { Plus, Trash2, Loader2, Flag, CheckCircle2, Circle, Pencil, Check, X } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import {
   getMilestones,
@@ -13,6 +13,9 @@ export default function MilestonesManager({ projectId }: { projectId: number }) 
   const [milestones, setMilestones] = useState<MilestoneOut[]>([]);
   const [title, setTitle] = useState('');
   const [adding, setAdding] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     getMilestones(projectId).then(setMilestones).catch(console.error);
@@ -48,6 +51,31 @@ export default function MilestonesManager({ projectId }: { projectId: number }) 
       setMilestones((prev) => prev.filter((m) => m.milestone_id !== milestoneId));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const startEdit = (milestone: MilestoneOut) => {
+    setEditingId(milestone.milestone_id);
+    setEditingTitle(milestone.title);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingTitle('');
+  };
+
+  const saveEdit = async (milestoneId: number) => {
+    if (!editingTitle.trim()) return;
+    setEditSaving(true);
+    try {
+      const updated = await updateMilestone(projectId, milestoneId, { title: editingTitle.trim() });
+      setMilestones((prev) => prev.map((m) => m.milestone_id === updated.milestone_id ? updated : m));
+      setEditingId(null);
+      setEditingTitle('');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -91,17 +119,65 @@ export default function MilestonesManager({ projectId }: { projectId: number }) 
               >
                 {milestone.is_completed ? <CheckCircle2 className="w-6 h-6" /> : <Circle className="w-6 h-6" />}
               </button>
-              <span className={cn('flex-grow text-sm', milestone.is_completed ? 'text-outline line-through' : 'text-primary font-medium')}>
-                {milestone.title}
-              </span>
-              {milestone.is_completed && milestone.completed_at && (
+
+              {editingId === milestone.milestone_id ? (
+                <div className="flex-grow flex items-center gap-2">
+                  <input
+                    autoFocus
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveEdit(milestone.milestone_id);
+                      if (e.key === 'Escape') cancelEdit();
+                    }}
+                    className="flex-grow bg-surface-container-lowest border border-outline-variant/20 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-primary outline-none"
+                  />
+                  <button
+                    onClick={() => saveEdit(milestone.milestone_id)}
+                    disabled={editSaving || !editingTitle.trim()}
+                    className="p-1.5 text-primary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-50"
+                    aria-label="Guardar"
+                  >
+                    {editSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  </button>
+                  <button
+                    onClick={cancelEdit}
+                    className="p-1.5 text-outline hover:bg-surface-container-low rounded-lg transition-colors"
+                    aria-label="Cancelar"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <span className={cn('flex-grow text-sm', milestone.is_completed ? 'text-outline line-through' : 'text-primary font-medium')}>
+                  {milestone.title}
+                </span>
+              )}
+
+              {editingId !== milestone.milestone_id && milestone.is_completed && milestone.completed_at && (
                 <span className="text-[10px] text-outline uppercase tracking-wider shrink-0">
                   {new Date(milestone.completed_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
               )}
-              <button onClick={() => handleDelete(milestone.milestone_id)} className="opacity-0 group-hover:opacity-100 p-1 text-outline hover:text-error transition-all shrink-0">
-                <Trash2 className="w-4 h-4" />
-              </button>
+
+              {editingId !== milestone.milestone_id && (
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0">
+                  <button
+                    onClick={() => startEdit(milestone)}
+                    className="p-1 text-outline hover:text-primary transition-all"
+                    aria-label="Editar hito"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(milestone.milestone_id)}
+                    className="p-1 text-outline hover:text-error transition-all"
+                    aria-label="Eliminar hito"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
