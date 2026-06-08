@@ -67,8 +67,9 @@ export default function ProjectReport() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <div role="status" className="min-h-screen flex items-center justify-center bg-white">
+        <span className="sr-only">Cargando reporte</span>
+        <Loader2 aria-hidden="true" className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
