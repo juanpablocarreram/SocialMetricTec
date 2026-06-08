@@ -96,6 +96,18 @@ export default function AdminPanel() {
       .catch(console.error);
   }, [section, projectListLoaded]);
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (showAddModal) setShowAddModal(false);
+      if (userToEdit) closeEditModal();
+      if (userToDelete) setUserToDelete(null);
+      if (projectToDelete) setProjectToDelete(null);
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showAddModal, userToEdit, userToDelete, projectToDelete]);
+
   const filteredUsers = users.filter(
     (u) =>
       u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -606,24 +618,28 @@ export default function AdminPanel() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-leader-title"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl p-10 overflow-hidden"
           >
-            <button onClick={() => setShowAddModal(false)} className="absolute top-6 right-6 p-2 text-outline hover:text-primary">
-              <X className="w-6 h-6 cursor-pointer" />
+            <button onClick={() => setShowAddModal(false)} aria-label="Cerrar modal" className="absolute top-6 right-6 p-2 text-outline hover:text-primary">
+              <X aria-hidden="true" className="w-6 h-6 cursor-pointer" />
             </button>
 
             <div className="space-y-8">
               <div>
-                <h2 className="text-3xl font-extrabold text-primary tracking-tighter">Nuevo Líder</h2>
+                <h2 id="add-leader-title" className="text-3xl font-extrabold text-primary tracking-tighter">Nuevo Líder</h2>
                 <p className="text-on-surface-variant font-light text-sm mt-2">Crea una cuenta para un nuevo líder de proyecto.</p>
               </div>
 
               <form onSubmit={handleCreateUser} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-outline uppercase tracking-widest px-1">Nombre de Usuario</label>
+                  <label htmlFor="new-leader-username" className="text-[10px] font-bold text-outline uppercase tracking-widest px-1">Nombre de Usuario</label>
                   <input
+                    id="new-leader-username"
                     required
                     type="text"
                     value={newUser.username}
@@ -634,8 +650,9 @@ export default function AdminPanel() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-outline uppercase tracking-widest px-1">Correo Electrónico</label>
+                  <label htmlFor="new-leader-email" className="text-[10px] font-bold text-outline uppercase tracking-widest px-1">Correo Electrónico</label>
                   <input
+                    id="new-leader-email"
                     required
                     type="email"
                     value={newUser.email}
@@ -647,8 +664,9 @@ export default function AdminPanel() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-outline uppercase tracking-widest px-1">Contraseña</label>
+                    <label htmlFor="new-leader-password" className="text-[10px] font-bold text-outline uppercase tracking-widest px-1">Contraseña</label>
                     <PasswordInput
+                      id="new-leader-password"
                       required
                       value={newUser.password}
                       onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
@@ -657,8 +675,9 @@ export default function AdminPanel() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-outline uppercase tracking-widest px-1">Confirmar</label>
+                    <label htmlFor="new-leader-confirm" className="text-[10px] font-bold text-outline uppercase tracking-widest px-1">Confirmar</label>
                     <PasswordInput
+                      id="new-leader-confirm"
                       required
                       value={newUser.confirmPassword}
                       onChange={(e) => setNewUser({ ...newUser, confirmPassword: e.target.value })}
@@ -712,15 +731,18 @@ export default function AdminPanel() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-leader-title"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl overflow-hidden"
           >
             <div className="p-8 pb-0">
-              <button onClick={closeEditModal} className="absolute top-6 right-6 p-2 text-outline hover:text-primary">
-                <X className="w-6 h-6" />
+              <button onClick={closeEditModal} aria-label="Cerrar modal" className="absolute top-6 right-6 p-2 text-outline hover:text-primary">
+                <X aria-hidden="true" className="w-6 h-6" />
               </button>
-              <h2 className="text-3xl font-extrabold text-primary tracking-tighter">{userToEdit.username}</h2>
+              <h2 id="edit-leader-title" className="text-3xl font-extrabold text-primary tracking-tighter">{userToEdit.username}</h2>
               <p className="text-on-surface-variant font-light text-sm mt-1">{userToEdit.email}</p>
 
               <div className="flex gap-1 mt-6 border-b border-outline-variant/10">
@@ -895,6 +917,9 @@ export default function AdminPanel() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-user-title"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="relative w-full max-w-md bg-white rounded-[32px] shadow-2xl p-8 overflow-hidden"
@@ -905,7 +930,7 @@ export default function AdminPanel() {
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-2xl font-extrabold text-primary tracking-tighter">¿Eliminar Líder?</h3>
+                <h3 id="delete-user-title" className="text-2xl font-extrabold text-primary tracking-tighter">¿Eliminar Líder?</h3>
                 <p className="text-on-surface-variant font-light text-sm leading-relaxed px-4">
                   Estás a punto de eliminar a{' '}
                   <span className="font-bold text-primary">{userToDelete.username}</span>. Esta acción{' '}
@@ -923,6 +948,7 @@ export default function AdminPanel() {
 
               <div className="flex gap-3 w-full pt-4">
                 <button
+                  aria-label="Cancelar"
                   onClick={() => setUserToDelete(null)}
                   className="flex-grow py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-low rounded-2xl transition-all"
                 >
@@ -951,6 +977,9 @@ export default function AdminPanel() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-project-title"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="relative w-full max-w-md bg-white rounded-[32px] shadow-2xl p-8 overflow-hidden"
@@ -961,7 +990,7 @@ export default function AdminPanel() {
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-2xl font-extrabold text-primary tracking-tighter">¿Eliminar Proyecto?</h3>
+                <h3 id="delete-project-title" className="text-2xl font-extrabold text-primary tracking-tighter">¿Eliminar Proyecto?</h3>
                 <p className="text-on-surface-variant font-light text-sm leading-relaxed px-4">
                   Estás a punto de eliminar el proyecto{' '}
                   <span className="font-bold text-primary">{projectToDelete.project_name}</span>. Esta acción{' '}
