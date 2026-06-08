@@ -9,6 +9,7 @@ import { getMetrics, MetricOut } from '@/src/services/metricService';
 import { getPhotos, PhotoOut } from '@/src/services/photoService';
 import { getTestimonies, TestimonyOut } from '@/src/services/testimonyService';
 import { getMilestones, MilestoneOut } from '@/src/services/milestoneService';
+import { getChangeLog, ChangeLogEntry } from '../services/changeLogService';
 import { PagePreview, type BackendBlock } from '../components/BlockRenderer';
 import ProjectTimeline from '../components/ProjectTimeline';
 import { Flag, CheckCircle2, Circle } from 'lucide-react';
@@ -32,6 +33,7 @@ export default function ProjectDetail() {
   const [testimonies, setTestimonies] = useState<TestimonyOut[]>([]);
   const [leaders, setLeaders] = useState<ProjectLeader[]>([]);
   const [milestones, setMilestones] = useState<MilestoneOut[]>([]);
+  const [changeLogs, setChangeLogs] = useState<ChangeLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -52,10 +54,16 @@ export default function ProjectDetail() {
         setTestimonies(t);
         setLeaders(l);
         setMilestones(ms);
+
+        if (user?.is_admin) {
+          getChangeLog(Number(id))
+            .then(setChangeLogs)
+            .catch(console.error);
+        }
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, user?.is_admin]);
 
   if (loading) {
     return (
@@ -345,6 +353,7 @@ export default function ProjectDetail() {
               testimonies={testimonies}
               photos={photos}
               milestones={milestones}
+              changeLogs={changeLogs}
             />
           </div>
         </section>
