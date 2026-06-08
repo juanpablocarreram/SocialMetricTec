@@ -49,6 +49,7 @@ function buildGroups(changeLogs: ChangeLogEntry[]): TimelineItem[] {
     }
   }
 
+  // Remaining pending entries (no subsequent page_edited) are intentionally dropped.
   return groups.reverse();
 }
 
