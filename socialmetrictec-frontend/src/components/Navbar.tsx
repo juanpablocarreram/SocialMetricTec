@@ -193,7 +193,7 @@ export default function Navbar() {
           {!user && (
             <Link
               to="/login"
-              className="bg-primary-container text-on-primary px-6 py-2 rounded-md font-headline text-sm font-semibold tracking-tight hover:brightness-110 transition-all active:scale-95 whitespace-nowrap"
+              className="bg-primary text-on-primary px-6 py-2 rounded-md font-headline text-sm font-semibold tracking-tight hover:brightness-110 transition-all active:scale-95 whitespace-nowrap"
             >
               Iniciar Sesión
             </Link>
@@ -241,7 +241,7 @@ export default function Navbar() {
                         setIsProfileOpen(false); 
                         window.location.replace("/login"); // <-- Borra el historial del navegador hacia atrás
                       }}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl text-error hover:bg-error/5 transition-all text-left"
+                      className="w-full flex cursor-pointer items-center gap-3 p-3 rounded-xl text-error hover:bg-error/5 transition-all text-left"
                     >
                       <span className="text-[10px] font-bold uppercase tracking-widest">Cerrar Sesión</span>
                     </button>

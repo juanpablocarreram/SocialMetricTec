@@ -188,7 +188,7 @@ export default function TestimoniesManager({ projectId }: { projectId: number })
                             <p className="text-sm font-bold text-primary">{name}</p>
                             {canEdit && (
                               <button onClick={() => startEditingName(t)} className="opacity-0 group-hover:opacity-100 p-1 text-outline hover:text-primary transition-all rounded-lg hover:bg-surface-container-low">
-                                <Pencil className="w-3 h-3" />
+                                <Pencil className="w-3 h-3 cursor-pointer" />
                               </button>
                             )}
                           </div>
@@ -200,7 +200,7 @@ export default function TestimoniesManager({ projectId }: { projectId: number })
                       {t.category && <span className="text-[9px] font-bold uppercase tracking-widest bg-primary/5 text-primary px-3 py-1 rounded-full border border-primary/10">{t.category}</span>}
                       {canEdit && (
                         <button onClick={() => handleDelete(t.testimony_id)} className="opacity-0 group-hover:opacity-100 p-1.5 text-outline hover:text-error transition-all rounded-lg hover:bg-error/5">
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4 cursor-pointer" />
                         </button>
                       )}
                     </div>
@@ -219,7 +219,7 @@ export default function TestimoniesManager({ projectId }: { projectId: number })
           {/* Compact add row — siempre visible cuando hay testimonios */}
           <button
             onClick={() => openModal('choice')}
-            className="w-full py-4 border border-dashed border-outline-variant/20 rounded-2xl flex items-center justify-center gap-2 text-outline hover:border-primary/30 hover:text-primary transition-all text-xs font-bold uppercase tracking-widest"
+            className="w-full cursor-pointer py-4 border border-dashed border-outline-variant/20 rounded-2xl flex items-center justify-center gap-2 text-outline hover:border-primary/30 hover:text-primary transition-all text-xs font-bold uppercase tracking-widest"
           >
             <Plus className="w-4 h-4" /> Agregar testimonio
           </button>

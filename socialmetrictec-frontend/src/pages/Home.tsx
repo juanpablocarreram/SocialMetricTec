@@ -62,7 +62,7 @@ export default function Home() {
               Construyendo el futuro a través del <span className="text-secondary">impacto social</span>.
             </h1>
             <p className="text-xl text-on-surface-variant leading-relaxed max-w-2xl font-light">
-              Nuestra plataforma académica documenta, gestiona y potencializa las iniciativas que transforman realidades en México y el mundo.
+              Nuestra plataforma académica documenta, gestiona y potencializa las iniciativas que transforman realidades en Puebla y el mundo.
             </p>
             <div className="pt-4 flex flex-wrap gap-4">
               <Link 
@@ -83,7 +83,7 @@ export default function Home() {
             <div className="w-full aspect-[4/5] bg-surface-container-low rounded-2xl overflow-hidden relative shadow-2xl">
               <img 
                 className="w-full h-full object-cover opacity-90" 
-                src="https://tec.mx/sites/default/files/styles/hero_section/public/2025-02/programa-servicio-social-tec-monterrey-v2_0.jpg?itok=tx2A8Tql" 
+                src="https://static.wixstatic.com/media/6f8753_a64ed9907504448d92f14d82543e4811~mv2.gif" 
                 alt="Campus"
                 referrerPolicy="no-referrer"
               />
@@ -178,7 +178,7 @@ export default function Home() {
                     </p>
                     <Link
                       to={`/project/${project.project_id}`}
-                      className="self-start text-primary border-b-2 border-primary pb-1 font-bold hover:text-primary-container hover:border-primary-container transition-colors"
+                      className="self-start text-primary border-b-2 border-primary pb-1 font-bold hover:text-secondary hover:border-secondary transition-colors"
                     >
                       Ver Detalles
                     </Link>

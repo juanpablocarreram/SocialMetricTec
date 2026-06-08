@@ -361,7 +361,7 @@ export default function AdminPanel() {
             <div className="flex gap-3">
               <button
                 onClick={openAddModal}
-                className="flex items-center justify-center gap-3 px-8 py-4 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all group"
+                className="flex items-center hover:cursor-pointer justify-center gap-3 px-8 py-4 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all group"
               >
                 <UserPlus className="w-4 h-4 transition-transform group-hover:scale-110" />
                 Añadir Líder
@@ -432,19 +432,19 @@ export default function AdminPanel() {
                         </div>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center justify-end gap-1 opacity-100 group-hover:opacity-100 transition-opacity">
                           {!user.is_admin && (
                             <>
                               <button
                                 onClick={() => openEditModal(user)}
-                                className="p-2 text-outline-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+                                className="p-2 text-secondary hover:text-primary hover:cursor-pointer hover:bg-primary/5 rounded-lg transition-all"
                                 title="Editar"
                               >
                                 <Pencil className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setUserToDelete(user)}
-                                className="p-2 text-outline-variant hover:text-error hover:bg-error/5 rounded-lg transition-all"
+                                className="p-2 text-secondary hover:text-error hover:cursor-pointer hover:bg-error/5 rounded-lg transition-all"
                                 title="Eliminar"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -546,15 +546,15 @@ export default function AdminPanel() {
                           }`}>
                             {project.is_active ? 'Activo' : 'Inactivo'}
                           </span>
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-1 opacity-100 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => handleToggleStatus(project.project_id)}
                               disabled={togglingProjectId === project.project_id}
                               aria-label={project.is_active ? 'Desactivar proyecto' : 'Activar proyecto'}
-                              className={`p-1.5 rounded-lg transition-colors disabled:opacity-50 ${
+                              className={`p-1.5 rounded-lg transition-colors disabled:opacity-50 hover:cursor-pointer ${
                                 project.is_active
-                                  ? 'text-emerald-600 hover:bg-emerald-50'
-                                  : 'text-slate-400 hover:bg-slate-100'
+                                  ? 'text-emerald-600 hover:text-red-400'
+                                  : 'text-red-400 hover:text-emerald-600'
                               }`}
                             >
                               {togglingProjectId === project.project_id
@@ -566,7 +566,7 @@ export default function AdminPanel() {
                             </button>
                             <button
                               onClick={() => setProjectToDelete(project)}
-                              className="p-2 text-outline-variant hover:text-error hover:bg-error/5 rounded-lg transition-all"
+                              className="p-2 text-primary hover:cursor-pointer hover:text-error hover:bg-error/5 rounded-lg transition-all"
                               title="Eliminar proyecto"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -611,7 +611,7 @@ export default function AdminPanel() {
             className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl p-10 overflow-hidden"
           >
             <button onClick={() => setShowAddModal(false)} className="absolute top-6 right-6 p-2 text-outline hover:text-primary">
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6 cursor-pointer" />
             </button>
 
             <div className="space-y-8">
@@ -683,14 +683,14 @@ export default function AdminPanel() {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="flex-grow py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-low rounded-2xl"
+                    className="flex-grow py-4 cursor-pointer text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:bg-surface-container-low rounded-2xl"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex-grow py-4 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                    className="flex-grow py-4 bg-primary text-white rounded-2xl cursor-pointer text-[10px] font-bold uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                   >
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                     Guardar Líder

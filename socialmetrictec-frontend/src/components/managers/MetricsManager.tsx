@@ -194,7 +194,7 @@ export default function MetricsManager({ projectId }: { projectId: number }) {
         </div>
         <button
           onClick={openModal}
-          className="flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary rounded-xl text-xs font-bold hover:bg-primary/20 transition-colors"
+          className="flex items-center gap-2 px-5 cursor-pointer py-2.5 bg-primary/10 text-primary rounded-xl text-xs font-bold hover:bg-primary/20 transition-colors"
         >
           <Plus className="w-4 h-4" /> Nueva Métrica
         </button>

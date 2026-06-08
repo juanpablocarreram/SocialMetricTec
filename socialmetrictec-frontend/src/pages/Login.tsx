@@ -127,7 +127,7 @@ export default function Login() {
         </Link>
         <button 
           onClick={() => navigate(-1)}
-          className="px-6 py-2 border border-primary text-primary rounded-md text-sm font-semibold hover:bg-primary/5 transition-colors flex items-center gap-2"
+          className="px-6 py-2 cursor-pointer border border-primary text-primary rounded-md text-sm font-semibold hover:bg-primary/5 transition-colors flex items-center gap-2"
         >
           Regresar
         </button>

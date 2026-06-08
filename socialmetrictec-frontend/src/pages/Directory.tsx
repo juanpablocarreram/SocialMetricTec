@@ -92,7 +92,7 @@ export default function Directory() {
               >
                 <option value="all">Estado de Actividad</option>
                 <option value="active">Activos</option>
-                <option value="inactive">Finalizados</option>
+                <option value="inactive">Inactivos</option>
               </select>
               <ChevronDown className="w-4 h-4 text-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
@@ -148,7 +148,7 @@ export default function Directory() {
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute top-4 left-4 flex gap-2">
-                      <span className="bg-primary-container text-on-primary px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">
+                      <span className="bg-primary text-on-primary px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">
                         {formatArea(project.impact_area)}
                       </span>
                       <span
@@ -162,7 +162,7 @@ export default function Directory() {
                         ) : (
                           <CheckCircle2 className="w-2.5 h-2.5" />
                         )}
-                        {project.is_active ? 'Activo' : 'Finalizado'}
+                        {project.is_active ? 'Activo' : 'Inactivo'}
                       </span>
                     </div>
                   </div>
@@ -201,7 +201,7 @@ export default function Directory() {
             { label: 'Proyectos en la Plataforma', value: String(projects.length) },
             { label: 'Proyectos Activos', value: String(projects.filter((p) => p.is_active).length) },
             { label: 'Áreas de Impacto', value: String(uniqueAreas.length) },
-            { label: 'Finalizados', value: String(projects.filter((p) => !p.is_active).length) },
+            { label: 'Inactivos', value: String(projects.filter((p) => !p.is_active).length) },
           ].map((stat, i) => (
             <div key={i} className="space-y-2">
               <div className="text-4xl md:text-5xl font-extrabold text-primary tracking-tighter">{stat.value}</div>

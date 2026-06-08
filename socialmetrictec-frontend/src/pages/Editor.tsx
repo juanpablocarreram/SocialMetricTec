@@ -259,7 +259,7 @@ function SortableTag({ section, onSelect, onDelete }: { section: Section; onSele
         <span className="text-xs font-semibold text-primary truncate">{sectionLabel(section)}</span>
       </button>
       <button onClick={onDelete} className="p-1.5 text-outline-variant hover:text-error rounded-lg transition-all" title="Eliminar sección">
-        <Trash2 className="w-3.5 h-3.5" />
+        <Trash2 className="w-3.5 h-3.5 cursor-pointer" />
       </button>
     </div>
   );
@@ -277,7 +277,7 @@ function SectionCard({ type, onDelete, children }: { type: SectionType; onDelete
           <span className="text-[10px] font-bold uppercase tracking-widest text-outline">{meta.label}</span>
         </div>
         <button onClick={onDelete} className="p-1.5 text-outline-variant hover:text-error hover:bg-error/5 rounded-lg transition-all" title="Eliminar sección">
-          <Trash2 className="w-3.5 h-3.5" />
+          <Trash2 className="w-3.5 h-3.5 cursor-pointer" />
         </button>
       </div>
       <div className="p-6">{children}</div>
@@ -452,7 +452,7 @@ function MetricsSection({ onManage }: { onManage: () => void }) {
       </p>
       <button
         onClick={onManage}
-        className="text-xs font-bold uppercase tracking-widest text-primary hover:underline"
+        className="text-xs font-bold uppercase  cursor-pointer tracking-widest text-primary hover:underline"
       >
         Gestionar métricas
       </button>
@@ -594,7 +594,7 @@ export default function Editor() {
                     <span className="text-xs font-semibold text-primary truncate">Métricas</span>
                   </button>
                   <button onClick={() => removeSection(metricsSection.id)} className="p-1.5 text-outline-variant hover:text-error rounded-lg transition-all" title="Eliminar sección">
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-3.5 h-3.5 cursor-pointer" />
                   </button>
                 </div>
               )}

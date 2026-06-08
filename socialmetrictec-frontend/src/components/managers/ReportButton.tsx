@@ -34,7 +34,7 @@ export default function ReportButton({ projectId }: { projectId: number }) {
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all shadow-lg"
+        className="flex items-center gap-2 bg-primary text-white px-6 py-3 cursor-pointer rounded-xl text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all shadow-lg"
       >
         <Download className="w-4 h-4" /> Generar Reporte PDF
       </button>

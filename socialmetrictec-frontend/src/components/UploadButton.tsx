@@ -48,7 +48,7 @@ export default function UploadButton({
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 bg-primary/10 text-primary rounded-xl py-2.5 px-4 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-primary/20 disabled:opacity-60"
+        className="w-full flex cursor-pointer items-center justify-center gap-2 bg-primary/10 text-primary rounded-xl py-2.5 px-4 text-xs font-bold uppercase tracking-widest transition-colors hover:bg-primary/20 disabled:opacity-60"
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CloudUpload className="w-4 h-4" />}
         {loading ? 'Subiendo...' : label}

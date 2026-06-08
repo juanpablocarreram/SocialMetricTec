@@ -99,7 +99,7 @@ export default function MilestonesManager({ projectId }: { projectId: number }) 
         <button
           type="submit"
           disabled={adding || !title.trim()}
-          className="flex items-center gap-2 px-5 bg-primary text-white rounded-xl text-xs font-bold hover:brightness-110 transition-all disabled:opacity-50"
+          className="flex items-center gap-2 px-5 bg-primary text-white rounded-xl text-xs font-bold hover:brightness-110 transition-all cursor-pointer disabled:cursor-default disabled:opacity-50"
         >
           {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           Añadir
