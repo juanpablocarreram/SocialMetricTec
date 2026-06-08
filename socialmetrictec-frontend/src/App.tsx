@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -24,6 +25,10 @@ function AppContent() {
   const isLoginPage = location.pathname === '/login';
   const { loading } = useAuth();
 
+  useEffect(() => {
+    document.getElementById('main-content')?.focus();
+  }, [location.pathname]);
+
   // Si todavía estamos preguntando a FastAPI quién es el usuario,
   // no mostramos nada de la app todavía.
   if (loading) {
@@ -43,7 +48,7 @@ function AppContent() {
         Saltar al contenido principal
       </a>
       {!isLoginPage && <Navbar />}
-      <main id="main-content" className="flex-grow">
+      <main id="main-content" tabIndex={-1} className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/directory" element={<Directory />} />
