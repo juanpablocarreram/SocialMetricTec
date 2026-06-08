@@ -28,8 +28,6 @@ export default function LogoSVG({ className }: { className?: string }) {
       fill="none"
       className={className}
       variants={containerVariants}
-      initial="rest"
-      whileHover="hover"
     >
       {/* Teal — top left */}
       <motion.rect x="0" y="0" width="100" height="100" rx="20" fill="#0BA599" variants={itemVariants} />

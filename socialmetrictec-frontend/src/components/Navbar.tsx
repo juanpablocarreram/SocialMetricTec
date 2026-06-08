@@ -56,11 +56,13 @@ export default function Navbar() {
     <header className="w-full sticky top-0 z-[100] glass-header border-b border-outline-variant/10 bg-white/80 backdrop-blur-md">
       <nav className="flex justify-between items-center px-6 md:px-12 py-3 max-w-screen-2xl mx-auto">
         <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-3 shrink-0">
-            <LogoSVG className="h-9 w-auto" />
-            <span className="text-xl font-bold text-primary tracking-tighter font-headline hidden lg:block">
-              SocialMetricTec
-            </span>
+          <Link to="/" className="shrink-0">
+            <motion.div className="flex items-center gap-3" initial="rest" whileHover="hover">
+              <LogoSVG className="h-9 w-auto" />
+              <span className="text-xl font-bold text-primary tracking-tighter font-headline hidden lg:block">
+                SocialMetricTec
+              </span>
+            </motion.div>
           </Link>
 
           {user && !user.is_admin && (
