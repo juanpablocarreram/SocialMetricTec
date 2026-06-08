@@ -357,28 +357,69 @@ function ImageSection({ section, onChange }: { section: Section; onChange: (s: P
   );
 }
 
+function getYouTubeEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'youtu.be') {
+      const id = u.pathname.slice(1).split('/')[0];
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+    if (u.hostname === 'www.youtube.com' || u.hostname === 'youtube.com') {
+      if (u.pathname === '/watch') {
+        const id = u.searchParams.get('v');
+        return id ? `https://www.youtube.com/embed/${id}` : null;
+      }
+      if (u.pathname.startsWith('/embed/')) return url;
+      if (u.pathname.startsWith('/shorts/')) {
+        const id = u.pathname.split('/')[2];
+        return id ? `https://www.youtube.com/embed/${id}` : null;
+      }
+    }
+  } catch { /* invalid URL */ }
+  return null;
+}
+
+function isDirectVideoUrl(url: string): boolean {
+  try {
+    const path = new URL(url).pathname.toLowerCase();
+    return ['.mp4', '.webm', '.ogg', '.mov'].some(ext => path.endsWith(ext));
+  } catch { return false; }
+}
+
 function VideoSection({ section, onChange }: { section: Section; onChange: (s: Partial<Section>) => void }) {
+  const embedUrl = section.url ? getYouTubeEmbedUrl(section.url) : null;
+  const isDirect = section.url ? isDirectVideoUrl(section.url) : false;
+  const isValid = !!embedUrl || isDirect;
+
   return (
     <div className="space-y-4">
-      {section.url ? (
-        <video src={section.url} controls className="w-full rounded-xl bg-black max-h-[360px]" />
+      {section.url && isValid ? (
+        embedUrl ? (
+          <iframe
+            src={embedUrl}
+            className="w-full aspect-video rounded-xl"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          <video src={section.url} controls className="w-full rounded-xl bg-black max-h-[360px]" />
+        )
       ) : (
-        <div className="w-full aspect-video rounded-xl bg-surface-container flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/20 gap-3">
+        <div className="w-full aspect-video rounded-xl bg-surface-container flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/20 gap-3 px-6 text-center">
           <Video className="w-10 h-10 text-outline/30" />
-          <p className="text-sm text-outline/40">Sube un video o pega su URL abajo</p>
+          {section.url && !isValid ? (
+            <p className="text-sm text-error/70">URL no reconocida — usa un enlace de YouTube o una URL directa de video (.mp4, .webm…)</p>
+          ) : (
+            <p className="text-sm text-outline/40">Pega una URL de YouTube o de un video</p>
+          )}
         </div>
       )}
       <input
         type="url"
         value={section.url ?? ''}
         onChange={(e) => onChange({ url: e.target.value })}
-        placeholder="URL del video (https://...)"
+        placeholder="https://youtube.com/watch?v=... o https://ejemplo.com/video.mp4"
         className="w-full text-sm bg-surface-container-low rounded-xl px-4 py-3 outline-none border border-outline-variant/20 focus:border-primary/40 transition-colors placeholder:text-outline/30 font-mono"
-      />
-      <UploadButton
-        label="Subir video"
-        accept="video/mp4,video/webm"
-        onUploaded={(url) => onChange({ url })}
       />
       <input
         type="text"

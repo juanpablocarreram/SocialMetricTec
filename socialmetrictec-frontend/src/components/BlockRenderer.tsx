@@ -4,6 +4,28 @@ import { Video } from 'lucide-react';
 import type { MetricOut } from '@/src/services/metricService';
 import { withOpacity } from '@/src/lib/utils';
 
+function getYouTubeEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'youtu.be') {
+      const id = u.pathname.slice(1).split('/')[0];
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+    if (u.hostname === 'www.youtube.com' || u.hostname === 'youtube.com') {
+      if (u.pathname === '/watch') {
+        const id = u.searchParams.get('v');
+        return id ? `https://www.youtube.com/embed/${id}` : null;
+      }
+      if (u.pathname.startsWith('/embed/')) return url;
+      if (u.pathname.startsWith('/shorts/')) {
+        const id = u.pathname.split('/')[2];
+        return id ? `https://www.youtube.com/embed/${id}` : null;
+      }
+    }
+  } catch { /* invalid URL */ }
+  return null;
+}
+
 export interface BlockProps {
   title?: string;
   url?: string;
@@ -210,10 +232,20 @@ export function BlockRenderer({
         </section>
       );
     }
+    const embedUrl = getYouTubeEmbedUrl(props.url);
     return (
       <section className="py-12 flex justify-center bg-white">
         <div className="max-w-4xl w-full px-8 space-y-4">
-          <video src={props.url} controls className="w-full rounded-2xl max-h-[500px] bg-black" />
+          {embedUrl ? (
+            <iframe
+              src={embedUrl}
+              className="w-full aspect-video rounded-2xl"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <video src={props.url} controls className="w-full rounded-2xl max-h-[500px] bg-black" />
+          )}
           {props.title && (
             <p className="text-center text-sm font-bold" style={{ color: primaryColor, fontFamily }}>{props.title}</p>
           )}
