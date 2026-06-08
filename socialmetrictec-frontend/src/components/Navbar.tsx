@@ -222,19 +222,24 @@ export default function Navbar() {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
+                aria-expanded={isProfileOpen}
+                aria-haspopup="menu"
+                aria-label={user ? `Menú de perfil de ${user.username}` : 'Menú de perfil'}
                 className={cn(
                   'flex items-center gap-2 p-1 rounded-full transition-all duration-300 hover:bg-surface-container-low group border border-transparent',
                   isProfileOpen ? 'bg-surface-container-low border-outline-variant/10 shadow-sm' : 'bg-transparent',
                 )}
               >
                 <div className="w-9 h-9 rounded-full border-2 border-white shadow-sm overflow-hidden bg-primary/5">
-                  <img src={userImage} alt="User Profile" className="w-full h-full object-cover" />
+                  <img src={userImage} alt={user?.username ?? 'Usuario'} className="w-full h-full object-cover" />
                 </div>
-                <ChevronDown className={cn('w-4 h-4 text-outline transition-transform duration-300 mr-1', isProfileOpen && 'rotate-180')} />
+                <ChevronDown aria-hidden="true" className={cn('w-4 h-4 text-outline transition-transform duration-300 mr-1', isProfileOpen && 'rotate-180')} />
               </button>
 
               {isProfileOpen && (
                 <motion.div
+                  role="menu"
+                  aria-label="Opciones de perfil"
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.15 }}
@@ -248,6 +253,7 @@ export default function Navbar() {
                   <div className="space-y-1">
                     <Link
                       to="/profile"
+                      role="menuitem"
                       onClick={() => setIsProfileOpen(false)}
                       className="w-full flex items-center gap-3 p-3 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all"
                     >
@@ -255,9 +261,10 @@ export default function Navbar() {
                     </Link>
                     <div className="h-px bg-outline-variant/5 my-1" />
                     <button
-                      onClick={() => { 
-                        logout(); 
-                        setIsProfileOpen(false); 
+                      role="menuitem"
+                      onClick={() => {
+                        logout();
+                        setIsProfileOpen(false);
                         window.location.replace("/login"); // <-- Borra el historial del navegador hacia atrás
                       }}
                       className="w-full flex cursor-pointer items-center gap-3 p-3 rounded-xl text-error hover:bg-error/5 transition-all text-left"
