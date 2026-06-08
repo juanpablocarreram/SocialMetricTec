@@ -59,7 +59,7 @@ export default function Home() {
           >
             <span className="text-primary font-bold tracking-widest uppercase text-xs">Legado Institucional y Social</span>
             <h1 className="text-5xl md:text-7xl font-extrabold text-primary tracking-tighter leading-tight">
-              Construyendo el futuro a través del <span className="text-secondary">impacto social</span>.
+              Construyendo el futuro a través del impacto social
             </h1>
             <p className="text-xl text-on-surface-variant leading-relaxed max-w-2xl font-light">
               Nuestra plataforma académica documenta, gestiona y potencializa las iniciativas que transforman realidades en Puebla y el mundo.
@@ -115,7 +115,7 @@ export default function Home() {
                         style={{ backgroundColor: sdgColor(area) }}
                       >
                         ODS {area.replace('ods_', '')}
-                        <span className="opacity-80">· {count}</span>
+                        <span>· {count}</span>
                       </span>
                     ))}
                   </div>
@@ -238,7 +238,7 @@ export default function Home() {
                     )}
                     <div className="absolute inset-0 bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-center p-3">
                       <span className="text-white text-sm font-bold leading-tight">{count} Proyecto{count !== 1 ? 's' : ''}</span>
-                      <span className="text-white/70 text-[10px] uppercase tracking-widest font-bold mt-1">Ver directorio</span>
+                      <span className="text-white text-[10px] uppercase tracking-widest font-bold mt-1">Ver directorio</span>
                     </div>
                   </Link>
                 </motion.div>

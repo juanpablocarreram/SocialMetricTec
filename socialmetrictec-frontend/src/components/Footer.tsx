@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 max-w-screen-2xl mx-auto">
         <div className="flex flex-col gap-2 text-center md:text-left">
           <span className="font-headline font-bold text-primary text-lg">SocialMetricTec</span>
-          <span className="font-body text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant opacity-70">
+          <span className="font-body text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant">
             © 2026 Instituto Tecnológico de Estudios Superiores de Monterrey
           </span>
         </div>
