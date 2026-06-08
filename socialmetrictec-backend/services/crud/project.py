@@ -110,7 +110,14 @@ def update_project_page_in_db(db: Session, project_id: int, page_data: Page, use
     if not user.is_admin and not is_manager:
         return "acceso_denegado"
 
-    project.page = _page_with_edit_log(project.page, page_data.model_dump())
+    new_page = page_data.model_dump()
+    old_blocks = (project.page or {}).get("blocks", []) if isinstance(project.page, dict) else []
+    new_blocks = new_page.get("blocks", [])
+
+    for block_event, block_type in _diff_blocks(old_blocks, new_blocks):
+        log_event(db, project_id, block_event, entity_name=block_type)
+
+    project.page = _page_with_edit_log(project.page, new_page)
     log_event(db, project_id, "page_edited")
     db.commit()
     db.refresh(project)
@@ -141,3 +148,33 @@ def _page_with_edit_log(previous_page, new_page: dict) -> dict:
     general_props["edit_log"] = ([*previous_log, datetime.utcnow().isoformat()])[-50:]
     new_page["general_props"] = general_props
     return new_page
+
+
+def _diff_blocks(old_blocks: list, new_blocks: list) -> list[tuple[str, str]]:
+    events: list[tuple[str, str]] = []
+
+    old_by_id = {b['id']: b for b in old_blocks if b.get('id')}
+    new_by_id = {b['id']: b for b in new_blocks if b.get('id')}
+    old_no_id = [b for b in old_blocks if not b.get('id')]
+    new_no_id = [b for b in new_blocks if not b.get('id')]
+
+    old_ids = set(old_by_id)
+    new_ids = set(new_by_id)
+
+    for bid in new_ids - old_ids:
+        events.append(('page_block_added', new_by_id[bid].get('type', 'bloque').capitalize()))
+    for bid in old_ids - new_ids:
+        events.append(('page_block_removed', old_by_id[bid].get('type', 'bloque').capitalize()))
+    for bid in old_ids & new_ids:
+        if old_by_id[bid] != new_by_id[bid]:
+            events.append(('page_block_modified', new_by_id[bid].get('type', 'bloque').capitalize()))
+
+    for i in range(max(len(old_no_id), len(new_no_id), 0)):
+        if i >= len(old_no_id):
+            events.append(('page_block_added', new_no_id[i].get('type', 'bloque').capitalize()))
+        elif i >= len(new_no_id):
+            events.append(('page_block_removed', old_no_id[i].get('type', 'bloque').capitalize()))
+        elif old_no_id[i] != new_no_id[i]:
+            events.append(('page_block_modified', new_no_id[i].get('type', 'bloque').capitalize()))
+
+    return events
