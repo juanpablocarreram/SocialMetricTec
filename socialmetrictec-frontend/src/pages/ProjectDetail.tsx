@@ -93,7 +93,8 @@ export default function ProjectDetail() {
       {project.cover_image_url && (
         <img
           alt={project.project_name}
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
+          className="absolute inset-0 w-full h-full object-cover opacity-80"
+          style={{ filter: 'contrast(1.1) saturate(1.2) brightness(0.85)' }}
           src={project.cover_image_url}
         />
       )}
