@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { Loader2, Printer, ChevronLeft } from 'lucide-react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { Loader2, Printer } from 'lucide-react';
 import { getProject, ProjectFull } from '@/src/services/pageService';
 import { formatArea } from '@/src/services/projectService';
 import { getMetrics, MetricOut } from '@/src/services/metricService';
@@ -29,7 +29,6 @@ const formatDate = (iso: string) =>
 export default function ProjectReport() {
   const { projectId } = useParams<{ projectId: string }>();
   const [params] = useSearchParams();
-  const navigate = useNavigate();
 
   const [project, setProject] = useState<ProjectFull | null>(null);
   const [metrics, setMetrics] = useState<MetricOut[]>([]);
@@ -85,9 +84,6 @@ export default function ProjectReport() {
       {/* Toolbar (no se imprime) */}
       <div className="no-print sticky top-0 z-10 bg-white border-b border-outline-variant/10 shadow-sm">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-bold text-outline hover:text-primary transition-colors">
-            <ChevronLeft className="w-4 h-4" /> Volver
-          </button>
           <span className="text-sm font-bold text-primary">Vista previa del reporte · {template.label}</span>
           <button
             onClick={() => window.print()}

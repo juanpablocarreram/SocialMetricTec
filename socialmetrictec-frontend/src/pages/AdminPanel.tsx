@@ -18,6 +18,7 @@ import {
   Minus,
   ToggleLeft,
   ToggleRight,
+  Printer,
 } from 'lucide-react';
 import api from '../lib/axios';
 import { cn } from '@/src/lib/utils';
@@ -559,6 +560,14 @@ export default function AdminPanel() {
                             {project.is_active ? 'Activo' : 'Inactivo'}
                           </span>
                           <div className="flex items-center gap-1 opacity-100 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => window.open(`/project/${project.project_id}/report`, '_blank')}
+                              aria-label={`Descargar reporte de ${project.project_name}`}
+                              className="p-2 text-primary hover:cursor-pointer hover:text-secondary hover:bg-primary/5 rounded-lg transition-all"
+                              title="Descargar reporte PDF"
+                            >
+                              <Printer className="w-4 h-4" />
+                            </button>
                             <button
                               onClick={() => handleToggleStatus(project.project_id)}
                               disabled={togglingProjectId === project.project_id}
