@@ -144,11 +144,12 @@ export default function CreateProject() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
               <div className="space-y-8">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-outline uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  <label htmlFor="project-name" className="text-[10px] font-bold text-outline uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true" />
                     Nombre del Proyecto
                   </label>
                   <input
+                    id="project-name"
                     required
                     type="text"
                     placeholder="Escribe el nombre de tu proyecto..."
@@ -161,12 +162,13 @@ export default function CreateProject() {
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Resumen del Proyecto *</label>
+                    <label htmlFor="project-description" className="text-[10px] font-bold text-outline uppercase tracking-widest">Resumen del Proyecto *</label>
                     <span className={cn('text-[10px] font-bold', !descValid && formData.description.length > 0 ? 'text-error' : descValid ? 'text-emerald-600' : 'text-outline')}>
                       {descLen} / {DESC_MIN}–{DESC_MAX}
                     </span>
                   </div>
                   <textarea
+                    id="project-description"
                     required
                     rows={4}
                     placeholder="Describe el impacto esperado (100–500 caracteres)..."
@@ -177,8 +179,9 @@ export default function CreateProject() {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Objetivo Principal *</label>
+                  <label htmlFor="project-objetivo" className="text-[10px] font-bold text-outline uppercase tracking-widest">Objetivo Principal *</label>
                   <textarea
+                    id="project-objetivo"
                     required
                     rows={3}
                     placeholder="¿Qué problema resuelve o qué cambio genera este proyecto?"
@@ -189,8 +192,9 @@ export default function CreateProject() {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Número de Beneficiarios *</label>
+                  <label htmlFor="project-beneficiarios" className="text-[10px] font-bold text-outline uppercase tracking-widest">Número de Beneficiarios *</label>
                   <input
+                    id="project-beneficiarios"
                     required
                     type="number"
                     min={0}
@@ -259,8 +263,8 @@ export default function CreateProject() {
               </div>
             </div>
 
-            <div className="space-y-6">
-              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">
+            <div className="space-y-6" role="group" aria-labelledby="ods-select-label">
+              <label id="ods-select-label" className="text-[10px] font-bold text-outline uppercase tracking-widest">
                 Selecciona el ODS
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -268,6 +272,7 @@ export default function CreateProject() {
                   <button
                     key={area.value}
                     type="button"
+                    aria-pressed={formData.area === area.value}
                     onClick={() => setFormData({ ...formData, area: area.value })}
                     className={cn(
                       'flex flex-col items-center gap-2 p-3 rounded-2xl transition-all border-2 group relative overflow-hidden',
@@ -296,7 +301,9 @@ export default function CreateProject() {
             </div>
 
             {error && (
-              <p className="text-error text-sm font-medium text-center">{error}</p>
+              <div role="alert" aria-live="assertive" className="text-error text-sm font-medium text-center">
+                {error}
+              </div>
             )}
 
             <div className="pt-8 flex flex-col md:flex-row gap-4 items-center justify-between border-t border-outline-variant/10">
@@ -318,12 +325,13 @@ export default function CreateProject() {
                 <button
                   type="submit"
                   disabled={submitting}
+                  aria-busy={submitting}
                   className="flex-grow md:flex-none px-12 py-4 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 group disabled:opacity-60"
                 >
-                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                  {submitting ? <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" /> : (
                     <>
                       Lanzar Proyecto
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight aria-hidden="true" className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </>
                   )}
                 </button>
