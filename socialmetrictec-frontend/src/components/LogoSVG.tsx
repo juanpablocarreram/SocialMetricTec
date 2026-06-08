@@ -15,7 +15,7 @@ const itemVariants: Variants = {
     scale: [1, 1.25, 0.9, 1],
     transition: {
       duration: 0.35,
-      ease: 'easeInOut' as const,
+      ease: 'easeInOut',
     },
   },
 };
