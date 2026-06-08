@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { ArrowRight, HeartPulse, CheckCircle2 } from 'lucide-react';
@@ -18,6 +18,7 @@ const sdgColor = (area: string): string =>
   SDG_COLORS[Number(area.replace('ods_', ''))] ?? '#6750A4';
 
 export default function Home() {
+  const rm = useReducedMotion();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
 
   useEffect(() => {
@@ -49,16 +50,16 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-surface py-20 md:py-32 px-6 md:px-12">
+      <section aria-labelledby="hero-heading" className="relative overflow-hidden bg-surface py-20 md:py-32 px-6 md:px-12">
         <div className="max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: rm ? 0 : 0.8 }}
             className="lg:w-3/5 space-y-8"
           >
             <span className="text-primary font-bold tracking-widest uppercase text-xs">Legado Institucional y Social</span>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-primary tracking-tighter leading-tight">
+            <h1 id="hero-heading" className="text-5xl md:text-7xl font-extrabold text-primary tracking-tighter leading-tight">
               Construyendo el futuro a través del impacto social
             </h1>
             <p className="text-xl text-on-surface-variant leading-relaxed max-w-2xl font-light">
@@ -74,17 +75,17 @@ export default function Home() {
             </div>
           </motion.div>
           
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: rm ? 0 : 0.8, delay: rm ? 0 : 0.2 }}
             className="lg:w-2/5 relative"
           >
             <div className="w-full aspect-[4/5] bg-surface-container-low rounded-2xl overflow-hidden relative shadow-2xl">
-              <img 
-                className="w-full h-full object-cover opacity-90" 
-                src="https://static.wixstatic.com/media/6f8753_a64ed9907504448d92f14d82543e4811~mv2.gif" 
-                alt="Campus"
+              <img
+                className="w-full h-full object-cover opacity-90"
+                src="https://static.wixstatic.com/media/6f8753_a64ed9907504448d92f14d82543e4811~mv2.gif"
+                alt="Campus del Tecnológico de Monterrey"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent"></div>
@@ -94,14 +95,15 @@ export default function Home() {
       </section>
 
       {/* Metrics Section */}
-      <section className="bg-surface-container py-20 px-6 md:px-12">
+      <section aria-labelledby="metrics-heading" className="bg-surface-container py-20 px-6 md:px-12">
+        <h2 id="metrics-heading" className="sr-only">Métricas de impacto</h2>
         <div className="max-w-screen-2xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12">
           {metrics.map((metric, idx) => (
             <motion.div 
               key={idx}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ delay: rm ? 0 : idx * 0.1 }}
               viewport={{ once: true }}
               className="space-y-3"
             >
@@ -132,11 +134,11 @@ export default function Home() {
       </section>
 
       {/* Featured Projects */}
-      <section className="bg-surface py-24 md:py-32 px-6 md:px-12">
+      <section aria-labelledby="featured-heading" className="bg-surface py-24 md:py-32 px-6 md:px-12">
         <div className="max-w-screen-2xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div className="max-w-2xl">
-              <h2 className="text-4xl font-bold text-primary mb-4 tracking-tight">Proyectos Destacados</h2>
+              <h2 id="featured-heading" className="text-4xl font-bold text-primary mb-4 tracking-tight">Proyectos Destacados</h2>
               <p className="text-on-surface-variant leading-relaxed">Selección curada de iniciativas con mayor incidencia social durante el último ciclo académico.</p>
             </div>
             <Link 
@@ -155,7 +157,7 @@ export default function Home() {
                   key={project.project_id}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
+                  transition={{ delay: rm ? 0 : idx * 0.1 }}
                   viewport={{ once: true }}
                   className="group flex flex-col h-full rounded-2xl overflow-hidden tonal-card border-t-4"
                   style={{ borderTopColor: accent }}
@@ -178,6 +180,7 @@ export default function Home() {
                     </p>
                     <Link
                       to={`/project/${project.project_id}`}
+                      aria-label={`Ver detalles de ${project.project_name}`}
                       className="self-start text-primary border-b-2 border-primary pb-1 font-bold hover:text-secondary hover:border-secondary transition-colors"
                     >
                       Ver Detalles
@@ -189,7 +192,7 @@ export default function Home() {
             {featuredProjects.length === 0 && (
               <div className="sm:col-span-2 lg:col-span-4 py-16 text-center text-on-surface-variant">
                 Aún no hay proyectos publicados.{' '}
-                <Link to="/create-project" className="text-primary font-bold hover:underline">
+                <Link to="/create-project" aria-label="Crear el primer proyecto" className="text-primary font-bold hover:underline">
                   Crea el primero
                 </Link>
                 .
@@ -200,10 +203,10 @@ export default function Home() {
       </section>
 
       {/* Impact Areas (ODS) */}
-      <section className="bg-surface-container-low py-24 md:py-32 px-6 md:px-12">
+      <section aria-labelledby="ods-heading" className="bg-surface-container-low py-24 md:py-32 px-6 md:px-12">
         <div className="max-w-screen-2xl mx-auto">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary tracking-tighter">Áreas de Impacto Estratégico</h2>
+            <h2 id="ods-heading" className="text-3xl md:text-4xl font-bold text-primary tracking-tighter">Áreas de Impacto Estratégico</h2>
             <p className="text-on-surface-variant max-w-2xl mx-auto">Nuestra labor se alinea con los 17 Objetivos de Desarrollo Sostenible (ODS) de la ONU para generar un cambio sistémico.</p>
           </div>
 
@@ -217,7 +220,7 @@ export default function Home() {
                   initial={{ opacity: 0, scale: 0.92 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: (idx % 6) * 0.05 }}
+                  transition={{ delay: rm ? 0 : (idx % 6) * 0.05 }}
                 >
                   <Link
                     to="/directory"
