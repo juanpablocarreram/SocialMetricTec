@@ -38,8 +38,8 @@ export default function Navbar() {
   }, []);
 
   const baseLinks = [
-    { name: 'Explorar', path: '/' },
-    { name: 'Directorio', path: '/directory' },
+    { name: 'Inicio', path: '/' },
+    { name: 'Proyectos', path: '/directory' },
   ];
 
   const projectLinks = currentProject
