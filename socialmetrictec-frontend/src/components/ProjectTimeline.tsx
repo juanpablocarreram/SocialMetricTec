@@ -131,7 +131,6 @@ export default function ProjectTimeline({ changeLogs }: ProjectTimelineProps) {
 
           const { publishEvent, children } = item;
           const isOpen = expanded.has(publishEvent.log_id);
-          const hasChildren = children.length > 0;
           const blockChildren = children.filter(c => c.event_type.startsWith('page_block_'));
           const dataChildren = children.filter(c => !c.event_type.startsWith('page_block_'));
 
@@ -147,29 +146,18 @@ export default function ProjectTimeline({ changeLogs }: ProjectTimelineProps) {
               <span className="absolute -left-10 top-1 w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shadow-sm">
                 <Pencil className="w-3.5 h-3.5" />
               </span>
-              <div
-                className={cn(
-                  'bg-white rounded-xl border overflow-hidden',
-                  hasChildren ? 'border-blue-200' : 'border-outline-variant/15',
-                )}
-              >
+              <div className="bg-white rounded-xl border border-blue-200 overflow-hidden">
                 <button
                   onClick={() => toggle(publishEvent.log_id)}
-                  disabled={!hasChildren}
-                  className={cn(
-                    'w-full flex items-center justify-between px-4 py-3 text-left',
-                    hasChildren
-                      ? 'cursor-pointer hover:bg-blue-50/50 transition-colors'
-                      : 'cursor-default',
-                  )}
+                  className="w-full flex items-center justify-between px-4 py-3 text-left cursor-pointer hover:bg-blue-50/50 transition-colors"
                 >
                   <div>
                     <p className="text-sm font-bold text-blue-700 leading-tight">
-                      Publicación de página
+                      Página editada
                     </p>
                     <p className="text-[10px] text-outline uppercase tracking-wider font-medium mt-1">
                       {formatDateTime(publishEvent.occurred_at)}
-                      {hasChildren && (
+                      {children.length > 0 && (
                         <span className="text-blue-500 font-bold">
                           {' '}·{' '}
                           {children.length}{' '}
@@ -178,14 +166,12 @@ export default function ProjectTimeline({ changeLogs }: ProjectTimelineProps) {
                       )}
                     </p>
                   </div>
-                  {hasChildren && (
-                    <ChevronDown
-                      className={cn(
-                        'w-4 h-4 text-blue-400 transition-transform duration-200 shrink-0 ml-3',
-                        isOpen && 'rotate-180',
-                      )}
-                    />
-                  )}
+                  <ChevronDown
+                    className={cn(
+                      'w-4 h-4 text-blue-400 transition-transform duration-200 shrink-0 ml-3',
+                      isOpen && 'rotate-180',
+                    )}
+                  />
                 </button>
 
                 <AnimatePresence initial={false}>
@@ -249,6 +235,12 @@ export default function ProjectTimeline({ changeLogs }: ProjectTimelineProps) {
                             </div>
                           );
                         })}
+
+                        {blockChildren.length === 0 && dataChildren.length === 0 && (
+                          <p className="text-xs text-outline italic">
+                            Sin cambios de contenido registrados.
+                          </p>
+                        )}
                       </div>
                     </motion.div>
                   )}
