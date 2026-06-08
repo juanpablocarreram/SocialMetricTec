@@ -6,6 +6,7 @@ from schemas.project import Project, ProjectFull, ProjectSummary
 from schemas.page import Page
 from schemas.media import MediaUploadResponse
 from schemas.user import UserOut, PublicLeader
+from schemas.change_log import ChangeLogOut
 from services.crud.project import (
     create_project_in_db,
     delete_project_in_db,
@@ -13,7 +14,9 @@ from services.crud.project import (
     list_all_projects,
     list_projects_for_user,
     update_project_page_in_db,
+    toggle_project_status,
 )
+from services.crud.change_log import get_change_log as get_change_log_service
 from services.crud.user import get_project_leaders
 from services.storage import supabase_storage
 from routes.deps import get_current_user_from_token
@@ -131,4 +134,39 @@ def delete_project(project_id: int, db = Depends(get_db), user:UserOut = Depends
             )
         # Éxito: 200 OK
         return {"message": "Proyecto eliminado exitosamente", "project_id": project_id}
-        
+
+
+""" Ruta para obtener el registro de cambios de un proyecto (solo admin) """
+@router.get("/{project_id}/change-log", response_model=list[ChangeLogOut])
+def get_project_change_log(
+    project_id: int,
+    db: Session = Depends(get_db),
+    user: UserOut = Depends(get_current_user_from_token),
+):
+    if not user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo los administradores pueden ver el registro de cambios.",
+        )
+    return get_change_log_service(db, project_id)
+
+
+""" Ruta para cambiar el estado activo/inactivo de un proyecto (solo admin) """
+@router.patch("/{project_id}/status", response_model=ProjectFull)
+def toggle_project_status_route(
+    project_id: int,
+    db: Session = Depends(get_db),
+    user: UserOut = Depends(get_current_user_from_token),
+):
+    result = toggle_project_status(db, project_id, user)
+    if result == "acceso_denegado":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo los administradores pueden cambiar el estado del proyecto.",
+        )
+    if result == "no_encontrado":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Proyecto no encontrado.",
+        )
+    return result
