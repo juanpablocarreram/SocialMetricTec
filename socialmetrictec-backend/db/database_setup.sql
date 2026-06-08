@@ -277,3 +277,21 @@ CREATE TABLE IF NOT EXISTS export_log (
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
+
+
+-- ============================================================
+-- 14. project_change_log  —  auditoría de cambios del proyecto
+--     Sin FK a project: el registro sobrevive al borrado del
+--     proyecto o del usuario, igual que export_log.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS project_change_log (
+    log_id        INT           NOT NULL AUTO_INCREMENT,
+    project_id    INT           NOT NULL,
+    event_type    VARCHAR(60)   NOT NULL,
+    entity_name   VARCHAR(255),
+    occurred_at   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT pk_project_change_log PRIMARY KEY (log_id)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;

@@ -6,3 +6,4 @@ from .testimony import Testimony, TestimonyTag
 from .photo import ProjectPhoto
 from .milestone import Milestone
 from .export_log import ExportLog
+from .change_log import ProjectChangeLog
