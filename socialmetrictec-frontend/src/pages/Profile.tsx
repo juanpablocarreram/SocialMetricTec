@@ -135,10 +135,11 @@ export default function Profile() {
 
           <form onSubmit={handleSaveProfile} className="space-y-6 mt-8">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Correo electrónico</label>
+              <label htmlFor="profile-email" className="text-[10px] font-bold text-outline uppercase tracking-widest">Correo electrónico</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" aria-hidden="true" />
                 <input
+                  id="profile-email"
                   required
                   type="email"
                   value={email}
@@ -149,8 +150,9 @@ export default function Profile() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Descripción</label>
+              <label htmlFor="profile-description" className="text-[10px] font-bold text-outline uppercase tracking-widest">Descripción</label>
               <textarea
+                id="profile-description"
                 rows={4}
                 value={profile.description ?? ''}
                 onChange={(e) => setField('description', e.target.value)}
@@ -161,12 +163,13 @@ export default function Profile() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">
+              <label htmlFor="profile-website" className="text-[10px] font-bold text-outline uppercase tracking-widest">
                 Sitio web <span className="ml-2 align-middle text-[10px] font-bold uppercase tracking-wider text-white bg-error px-2.5 py-1 rounded-full">Opcional</span>
               </label>
               <div className="relative">
-                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
+                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" aria-hidden="true" />
                 <input
+                  id="profile-website"
                   type="text"
                   value={profile.website ?? ''}
                   onChange={(e) => setField('website', e.target.value)}
@@ -200,14 +203,19 @@ export default function Profile() {
               </div>
             </div>
 
-            {profileError && <p className="text-sm text-error font-medium">{profileError}</p>}
+            {profileError && (
+              <div role="alert" aria-live="assertive" className="text-sm text-error font-medium">
+                {profileError}
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={savingProfile}
+              aria-busy={savingProfile}
               className="w-full py-4 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              {savingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              {savingProfile ? <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" /> : <Check aria-hidden="true" className="w-4 h-4" />}
               {profileSaved ? 'Guardado' : 'Guardar Perfil'}
             </button>
           </form>
@@ -227,8 +235,9 @@ export default function Profile() {
 
           <form onSubmit={handleChangePassword} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Contraseña actual</label>
+              <label htmlFor="current-password" className="text-[10px] font-bold text-outline uppercase tracking-widest">Contraseña actual</label>
               <PasswordInput
+                id="current-password"
                 required
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
@@ -237,8 +246,9 @@ export default function Profile() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Nueva contraseña</label>
+                <label htmlFor="new-password" className="text-[10px] font-bold text-outline uppercase tracking-widest">Nueva contraseña</label>
                 <PasswordInput
+                  id="new-password"
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
@@ -246,8 +256,9 @@ export default function Profile() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Confirmar contraseña</label>
+                <label htmlFor="confirm-password" className="text-[10px] font-bold text-outline uppercase tracking-widest">Confirmar contraseña</label>
                 <PasswordInput
+                  id="confirm-password"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -256,14 +267,19 @@ export default function Profile() {
               </div>
             </div>
 
-            {passwordError && <p className="text-sm text-error font-medium">{passwordError}</p>}
+            {passwordError && (
+              <div role="alert" aria-live="assertive" className="text-sm text-error font-medium">
+                {passwordError}
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={savingPassword}
+              aria-busy={savingPassword}
               className="w-full py-4 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              {savingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              {savingPassword ? <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" /> : <Check aria-hidden="true" className="w-4 h-4" />}
               {passwordSaved ? 'Contraseña actualizada' : 'Cambiar Contraseña'}
             </button>
           </form>
