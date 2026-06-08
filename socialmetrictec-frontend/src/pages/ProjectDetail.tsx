@@ -120,7 +120,7 @@ export default function ProjectDetail() {
   );
 
   const teamSection = leaders.length > 0 && (
-    <section className="py-20 bg-surface-container-lowest">
+    <section className="py-20 bg-surface">
       <div className="max-w-5xl mx-auto px-5 sm:px-8">
         <div className="mb-12 text-center">
           <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--p-secondary)' }}>
@@ -161,7 +161,7 @@ export default function ProjectDetail() {
       />
 
       {/* Widget de beneficiarios */}
-      <section className="bg-surface-container-lowest py-12">
+      <section className="bg-primary-container py-12">
         <div className="max-w-5xl mx-auto px-5 sm:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -187,7 +187,7 @@ export default function ProjectDetail() {
 
       {/* Photo gallery */}
       {photos.length > 0 && (
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-surface-container-lowest">
           <div className="max-w-6xl mx-auto px-5 sm:px-8">
             <h2 className="text-2xl font-bold tracking-tight mb-8" style={{ color: 'var(--p-primary)' }}>
               Galería del Proyecto
@@ -216,7 +216,7 @@ export default function ProjectDetail() {
 
       {/* Testimonies */}
       {testimonies.length > 0 && (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-secondary-container">
           <div className="max-w-5xl mx-auto px-5 sm:px-8">
             <div className="mb-12 text-center">
               <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--p-secondary)' }}>
@@ -234,7 +234,7 @@ export default function ProjectDetail() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.07, ease: 'easeOut' }}
-                  className="group relative flex flex-col bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-outline-variant/10 hover:border-primary/20 hover:shadow-[0_20px_50px_-25px_rgba(0,32,104,0.3)] transition-all duration-300"
+                  className="group relative flex flex-col bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-outline-variant/10 hover:border-primary/30 hover:shadow-[0_20px_50px_-25px_rgba(124,48,170,0.25)] transition-all duration-300"
                 >
                   <span
                     className="absolute top-6 right-7 font-serif text-6xl leading-none select-none"
@@ -281,7 +281,7 @@ export default function ProjectDetail() {
 
       {/* Hitos */}
       {milestones.length > 0 && (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-surface-container-lowest">
           <div className="max-w-4xl mx-auto px-5 sm:px-8">
             <div className="mb-12 text-center">
               <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--p-secondary)' }}>
@@ -336,7 +336,7 @@ export default function ProjectDetail() {
 
       {/* Línea de tiempo (solo administradores) */}
       {user?.is_admin && (
-        <section className="py-20 bg-surface-container-lowest">
+        <section className="py-20 bg-surface">
           <div className="max-w-3xl mx-auto px-5 sm:px-8">
             <div className="mb-12 text-center">
               <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: 'var(--p-secondary)' }}>
@@ -390,7 +390,7 @@ function LeaderCard({ leader, index, primaryColor }: { leader: ProjectLeader; in
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.08, ease: 'easeOut' }}
-      className="group relative bg-white rounded-3xl border border-outline-variant/10 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_-20px_rgba(0,32,104,0.35)] transition-all duration-300 overflow-hidden flex flex-col"
+      className="group relative bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_-20px_rgba(124,48,170,0.3)] transition-all duration-300 overflow-hidden flex flex-col"
     >
       <div
         className="h-20 relative"

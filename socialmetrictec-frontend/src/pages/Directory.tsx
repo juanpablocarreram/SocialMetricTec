@@ -168,7 +168,7 @@ export default function Directory() {
                   </div>
 
                   <div className="flex flex-col flex-grow px-4 pb-4">
-                    <h3 className="text-xl font-bold text-primary mb-3 leading-snug group-hover:text-primary-container transition-colors">
+                    <h3 className="text-xl font-bold text-primary mb-3 leading-snug group-hover:text-secondary transition-colors">
                       {project.project_name}
                     </h3>
                     <p className="text-sm text-on-surface-variant line-clamp-3 mb-6 leading-relaxed">
