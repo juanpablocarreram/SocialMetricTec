@@ -16,11 +16,13 @@ import {
   FolderOpen,
   Plus,
   Minus,
+  ToggleLeft,
+  ToggleRight,
 } from 'lucide-react';
 import api from '../lib/axios';
 import { cn } from '@/src/lib/utils';
 import PasswordInput from '../components/PasswordInput';
-import { type ProjectSummary, listProjects, deleteProject, formatArea } from '@/src/services/projectService';
+import { type ProjectSummary, listProjects, deleteProject, formatArea, toggleProjectStatus } from '@/src/services/projectService';
 
 interface User {
   username: string;
@@ -71,6 +73,7 @@ export default function AdminPanel() {
   const [projectToDelete, setProjectToDelete] = useState<ProjectSummary | null>(null);
   const [deletingProject, setDeletingProject] = useState(false);
   const [projectDeleteError, setProjectDeleteError] = useState('');
+  const [togglingProjectId, setTogglingProjectId] = useState<number | null>(null);
 
   useEffect(() => {
     api.get('/user/users-preview')
@@ -292,6 +295,20 @@ export default function AdminPanel() {
       setProjectDeleteError(err?.response?.data?.detail ?? 'No se pudo eliminar el proyecto.');
     } finally {
       setDeletingProject(false);
+    }
+  };
+
+  const handleToggleStatus = async (projectId: number) => {
+    setTogglingProjectId(projectId);
+    try {
+      const updated = await toggleProjectStatus(projectId);
+      setProjectList((prev) =>
+        prev.map((p) => p.project_id === projectId ? { ...p, is_active: updated.is_active } : p)
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTogglingProjectId(null);
     }
   };
 
@@ -521,14 +538,40 @@ export default function AdminPanel() {
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => setProjectToDelete(project)}
-                            className="p-2 text-outline-variant hover:text-error hover:bg-error/5 rounded-lg transition-all"
-                            title="Eliminar proyecto"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <span className={`text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
+                            project.is_active
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-slate-100 text-slate-500'
+                          }`}>
+                            {project.is_active ? 'Activo' : 'Inactivo'}
+                          </span>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => handleToggleStatus(project.project_id)}
+                              disabled={togglingProjectId === project.project_id}
+                              aria-label={project.is_active ? 'Desactivar proyecto' : 'Activar proyecto'}
+                              className={`p-1.5 rounded-lg transition-colors disabled:opacity-50 ${
+                                project.is_active
+                                  ? 'text-emerald-600 hover:bg-emerald-50'
+                                  : 'text-slate-400 hover:bg-slate-100'
+                              }`}
+                            >
+                              {togglingProjectId === project.project_id
+                                ? <Loader2 className="w-4 h-4 animate-spin" />
+                                : project.is_active
+                                  ? <ToggleRight className="w-5 h-5" />
+                                  : <ToggleLeft className="w-5 h-5" />
+                              }
+                            </button>
+                            <button
+                              onClick={() => setProjectToDelete(project)}
+                              className="p-2 text-outline-variant hover:text-error hover:bg-error/5 rounded-lg transition-all"
+                              title="Eliminar proyecto"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       </td>
                     </motion.tr>

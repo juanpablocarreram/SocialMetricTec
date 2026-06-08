@@ -78,3 +78,8 @@ export const getProjectLeaders = async (projectId: number): Promise<ProjectLeade
 export const deleteProject = async (projectId: number): Promise<void> => {
   await api.delete(`/project/${projectId}/delete`);
 };
+
+export const toggleProjectStatus = async (projectId: number): Promise<ProjectFull> => {
+  const res = await api.patch(`/project/${projectId}/status`);
+  return res.data;
+};
