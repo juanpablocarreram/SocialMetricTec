@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS project (
     impact_area      VARCHAR(255),
     cover_image_url  VARCHAR(2048),
     is_active        TINYINT(1)     NOT NULL DEFAULT 1,
+    is_featured      TINYINT(1)     NOT NULL DEFAULT 0,
     page             JSON,
     objetivo         TEXT,
     numero_beneficiarios INT        NOT NULL DEFAULT 0,
