@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, Trash2, Image as ImageIcon, Video,
   AlignLeft, Minus, Check, Loader2, Eye, GripVertical,
@@ -216,8 +216,8 @@ function fromBackendPage(page: BackendPage, fallback: { name: string; descriptio
   };
   return {
     coverImage: (hero?.props.url as string) ?? '',
-    headline: (hero?.props.headline as string) ?? fallback.name,
-    subtitle: (hero?.props.subtitle as string) ?? fallback.description,
+    headline: fallback.name,
+    subtitle: fallback.description,
     primaryColor: styles.primaryColor ?? '#002068',
     secondaryColor: styles.secondaryColor ?? '#525d85',
     fontFamily: styles.fontFamily ?? "'Manrope', sans-serif",
@@ -527,6 +527,7 @@ export default function Editor() {
   const { currentProject, loadingProjects } = useProject();
   const [state, setState] = useState<PageState>(DEFAULT_STATE);
   const [projectName, setProjectName] = useState('');
+  const [projectDescription, setProjectDescription] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -539,8 +540,10 @@ export default function Editor() {
     getProject(Number(currentProject.id))
       .then((project) => {
         setProjectName(project.project_name);
+        setProjectDescription(project.description ?? '');
+        const fallback = { name: project.project_name, description: project.description ?? '' };
         if (project.page) {
-          setState(fromBackendPage(project.page as BackendPage, { name: project.project_name, description: project.description ?? '' }));
+          setState(fromBackendPage(project.page as BackendPage, fallback));
         } else {
           setState({ ...DEFAULT_STATE, headline: project.project_name, subtitle: project.description ?? '' });
         }
@@ -548,6 +551,21 @@ export default function Editor() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [currentProject?.id]);
+
+  useEffect(() => {
+    const handleProjectUpdated = () => {
+      if (!currentProject || !user) return;
+      getProject(Number(currentProject.id))
+        .then((project) => {
+          setProjectName(project.project_name);
+          setProjectDescription(project.description ?? '');
+          setState((prev) => ({ ...prev, headline: project.project_name, subtitle: project.description ?? '' }));
+        })
+        .catch(console.error);
+    };
+    window.addEventListener('project-updated', handleProjectUpdated);
+    return () => window.removeEventListener('project-updated', handleProjectUpdated);
+  }, [currentProject?.id, user]);
 
   const publish = async () => {
     if (!currentProject) return;
@@ -615,9 +633,15 @@ export default function Editor() {
         </button>
         <span className="text-sm font-bold text-primary truncate max-w-xs hidden md:block">{projectName}</span>
         <div className="flex items-center gap-3">
-          <Link to={`/project/${projectId}`} target="_blank" className="hidden sm:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-outline hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-surface-container-low">
+          <button
+            onClick={() => {
+              localStorage.setItem(`editor_preview_${projectId}`, JSON.stringify(toBackendPage(state)));
+              window.open(`/project/${projectId}?preview=1`, '_blank');
+            }}
+            className="hidden sm:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-outline hover:text-primary transition-colors px-4 py-2 rounded-lg hover:bg-surface-container-low"
+          >
             <Eye className="w-4 h-4" /> Vista previa
-          </Link>
+          </button>
           <button onClick={publish} disabled={saving} className="flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-60 shadow-lg">
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
             {saved ? 'Guardado' : 'Publicar'}
@@ -763,23 +787,19 @@ export default function Editor() {
                 )}
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end px-6 md:px-16 pb-12 pointer-events-none">
-                <div className="pointer-events-auto max-w-4xl mx-auto w-full space-y-4">
-                  <input
-                    type="text"
-                    value={state.headline}
-                    onChange={(e) => setState((p) => ({ ...p, headline: e.target.value }))}
-                    placeholder="Título del proyecto..."
-                    className="w-full text-4xl md:text-6xl font-extrabold text-white bg-transparent border-none outline-none placeholder:text-white/30 tracking-tighter leading-tight"
+                <div className="max-w-4xl mx-auto w-full space-y-4">
+                  <p
+                    className="text-4xl md:text-6xl font-extrabold text-white tracking-tighter leading-tight"
                     style={{ fontFamily: state.fontFamily }}
-                  />
-                  <input
-                    type="text"
-                    value={state.subtitle}
-                    onChange={(e) => setState((p) => ({ ...p, subtitle: e.target.value }))}
-                    placeholder="Subtítulo o descripción breve..."
-                    className="w-full text-xl text-white/80 bg-transparent border-none outline-none placeholder:text-white/20 font-light"
+                  >
+                    {state.headline || <span className="opacity-40 text-3xl font-light italic">Sin título</span>}
+                  </p>
+                  <p
+                    className="text-xl text-white/80 font-light line-clamp-3"
                     style={{ fontFamily: state.fontFamily }}
-                  />
+                  >
+                    {state.subtitle || <span className="opacity-40 italic text-base">Sin descripción</span>}
+                  </p>
                 </div>
               </div>
             </div>

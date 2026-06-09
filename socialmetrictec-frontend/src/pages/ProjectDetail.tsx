@@ -1,6 +1,6 @@
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { withOpacity } from '@/src/lib/utils';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Loader2, Mail, Globe, Linkedin, Instagram, Facebook, Twitter, ChevronDown, Users } from 'lucide-react';
 import { getProject } from '@/src/services/pageService';
@@ -27,6 +27,8 @@ const withProtocol = (url?: string) =>
 export default function ProjectDetail() {
   const rm = useReducedMotion();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const isPreview = searchParams.get('preview') === '1';
   const { user } = useAuth();
   const [project, setProject] = useState<Awaited<ReturnType<typeof getProject>> | null>(null);
   const [metrics, setMetrics] = useState<MetricOut[]>([]);
@@ -85,7 +87,10 @@ export default function ProjectDetail() {
     );
   }
 
-  const page = project.page as { blocks: BackendBlock[]; general_props: { styles?: PageStyles; edit_log?: string[] } } | null;
+  const previewPageData = isPreview ? (() => {
+    try { return JSON.parse(localStorage.getItem(`editor_preview_${id}`) ?? 'null'); } catch { return null; }
+  })() : null;
+  const page = (previewPageData ?? project.page) as { blocks: BackendBlock[]; general_props: { styles?: PageStyles; edit_log?: string[] } } | null;
   const styles: PageStyles = page?.general_props?.styles ?? {};
   const primaryColor = styles.primaryColor ?? '#002068';
   const secondaryColor = styles.secondaryColor ?? '#525d85';
@@ -153,6 +158,11 @@ export default function ProjectDetail() {
         '--p-secondary': secondaryColor,
       } as React.CSSProperties}
     >
+      {isPreview && (
+        <div className="bg-amber-500 text-white text-center text-[10px] font-bold py-2.5 uppercase tracking-widest">
+          Vista previa — Cambios sin publicar
+        </div>
+      )}
       {blocks.length === 0 && defaultHero}
 
       <PagePreview
