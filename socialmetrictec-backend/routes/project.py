@@ -25,13 +25,12 @@ from models.project import Manages
 
 router = APIRouter(prefix="/project", tags=["project"])
 
-# --- Endpoints ---s
-""" Ruta pública para listar todos los proyectos (directorio) """
+
 @router.get("/listpreview", response_model=list[ProjectSummary])
 def list_projects_preview(db: Session = Depends(get_db)):
     return list_all_projects(db)
 
-""" Ruta autenticada: devuelve solo los proyectos que gestiona el usuario """
+
 @router.get("/mine", response_model=list[ProjectSummary])
 def list_my_projects(
     db: Session = Depends(get_db),
@@ -39,13 +38,13 @@ def list_my_projects(
 ):
     return list_projects_for_user(db, user)
 
-""" Ruta para crear un nuevo proyecto, solo lideres pueden crear proyectos """
+
 @router.post("/create", response_model=ProjectFull)
 async def create_project(project_info:Project,db = Depends(get_db),user : UserOut = Depends(get_current_user_from_token)):
     created_project = create_project_in_db(db,project_info,user)
     return created_project
 
-""" Ruta para obtener la pagina, todos los usuarios pueden ver la pagina del proyecto """
+
 @router.get("/{id_project}", response_model=ProjectFull)
 def get_all_info_about_project(id_project: int, db = Depends(get_db)):
     project = get_project_from_db(db, id_project)
@@ -53,13 +52,12 @@ def get_all_info_about_project(id_project: int, db = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Proyecto no encontrado")
     return project
 
-""" Ruta pública para obtener los líderes (y su contacto) de un proyecto """
+
 @router.get("/{project_id}/leaders", response_model=list[PublicLeader])
 def list_project_leaders(project_id: int, db: Session = Depends(get_db)):
     return get_project_leaders(db, project_id)
 
 
-""" Ruta para guardar la página de bloques de un proyecto """
 @router.put("/{project_id}/page", response_model=ProjectFull)
 def update_project_page(
     project_id: int,
@@ -75,7 +73,6 @@ def update_project_page(
     return result
 
 
-""" Ruta para subir archivos multimedia a Supabase Storage """
 @router.post("/{project_id}/media", response_model=MediaUploadResponse)
 async def upload_project_media(
     project_id: int,
@@ -118,7 +115,6 @@ async def upload_project_media(
     return MediaUploadResponse(url=public_url, path=path, content_type=file.content_type, size_bytes=len(file_bytes))
 
 
-""" Ruta para eliminar un proyecto existente, solo un lider relacionado al proyecto puede eliminarlo o un admin"""
 @router.delete("/{project_id}/delete")
 def delete_project(project_id: int, db = Depends(get_db), user:UserOut = Depends(get_current_user_from_token)):
         result = delete_project_in_db(db, project_id, user)
@@ -132,11 +128,9 @@ def delete_project(project_id: int, db = Depends(get_db), user:UserOut = Depends
                 status_code=status.HTTP_403_FORBIDDEN, 
                 detail="No tienes permiso para eliminar este proyecto."
             )
-        # Éxito: 200 OK
         return {"message": "Proyecto eliminado exitosamente", "project_id": project_id}
 
 
-""" Ruta para obtener el registro de cambios de un proyecto (solo admin) """
 @router.get("/{project_id}/change-log", response_model=list[ChangeLogOut])
 def get_project_change_log(
     project_id: int,
@@ -151,7 +145,6 @@ def get_project_change_log(
     return get_change_log_service(db, project_id)
 
 
-""" Ruta para cambiar el estado activo/inactivo de un proyecto (solo admin) """
 @router.patch("/{project_id}/status", response_model=ProjectFull)
 def toggle_project_status_route(
     project_id: int,

@@ -29,17 +29,11 @@ export default function LogoSVG({ className }: { className?: string }) {
       className={className}
       variants={containerVariants}
     >
-      {/* Teal — top left */}
       <motion.rect x="0" y="0" width="100" height="100" rx="20" fill="#0BA599" variants={itemVariants} />
-      {/* Orange — top right */}
       <motion.rect x="120" y="0" width="100" height="100" rx="20" fill="#E89018" variants={itemVariants} />
-      {/* Coral — mid left */}
       <motion.rect x="0" y="120" width="100" height="100" rx="20" fill="#E0564E" variants={itemVariants} />
-      {/* Purple — mid right */}
       <motion.rect x="120" y="120" width="100" height="100" rx="20" fill="#7C30AA" variants={itemVariants} />
-      {/* Empty circle — bottom left */}
       <motion.circle cx="50" cy="290" r="46" stroke="#CCCCCC" strokeWidth="3" fill="white" variants={itemVariants} />
-      {/* Blue — bottom right */}
       <motion.rect x="120" y="240" width="100" height="100" rx="20" fill="#5A8FBE" variants={itemVariants} />
     </motion.svg>
   );

@@ -1,10 +1,11 @@
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Landmark, ArrowRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // Tu contexto
+import { useAuth } from '../context/AuthContext';
 import api from '../lib/axios';
 import PasswordInput from '../components/PasswordInput';
+import LogoSVG from '../components/LogoSVG';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -19,42 +20,27 @@ const LoginForm = () => {
     setErrorMessage('');
 
     try {
-      // 1. Preparar los datos del formulario para FastAPI
       const params = new URLSearchParams({
         username: formData.username,
         password: formData.password,
       });
-      // 2. Petición de Login usando la instancia personalizada
-      // Nota: Ya no necesitas concatenar el VITE_API_URL, la instancia ya lo sabe base.
       const loginRes = await api.post(`${import.meta.env.VITE_API_URL}/user/login`, params);
-      
-      // Axios guarda el JSON del servidor directamente en .data
       console.log("Usuario autenticado:", loginRes.data);
       const { access_token } = loginRes.data;
-      // 3. Guardar el Access Token en el localStorage
       localStorage.setItem("token", access_token);
 
-      // 4. Obtener el perfil del usuario inmediatamente (/user/me)
-      // ¡Magia! Tu interceptor de peticiones detecta el nuevo token en el localStorage 
-      // y le pega el header "Authorization: Bearer ..." de forma automática.
       const userRes = await api.get(`${import.meta.env.VITE_API_URL}/user/me`);
       setUser(userRes.data);
       setLoading(false);
-      // Permitir que React procese el cambio de estado antes de navegar
-      // para evitar conflictos con Framer Motion
+      // delay para que React procese el cambio de estado antes de navegar y evitar conflictos con Framer Motion
       setTimeout(() => {
         navigate("/");
       }, 100);
 
-    } 
+    }
     catch (error) {
-      // Axios maneja los errores HTTP (400, 401, 500, etc.) enviándolos directo al catch
       console.error("Error en la autenticación:", error);
-      
-      // El JSON de error que manda tu FastAPI (ej: HTTPException(detail="..."))
-      // vive adentro de error.response.data
       const errorMsg = error.response?.data?.detail || "Error al iniciar sesión";
-      
       setErrorMessage(typeof errorMsg === 'string' ? errorMsg : "Error de validación");
     } 
     finally {
@@ -124,7 +110,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-surface flex flex-col">
-      {/* Header */}
       <header className="w-full px-6 md:px-12 py-6 flex justify-between items-center bg-white/50 backdrop-blur-sm">
         <Link to="/" className="flex items-center gap-3 group">
           <img
@@ -145,16 +130,14 @@ export default function Login() {
         </button>
       </header>
 
-      {/* Main Content */}
       <main className="flex-grow flex flex-col items-center justify-center px-6 py-12">
-        <div 
+        <div
           className="w-full max-w-md space-y-8"
         >
-          {/* Institutional Icon */}
           <div className="flex flex-col items-start gap-6">
-            <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-md shadow-lg">
-              <Landmark className="w-6 h-6 text-white" />
-            </div>
+            <motion.div initial="rest" whileHover="hover">
+              <LogoSVG className="h-12 w-auto" />
+            </motion.div>
             <div className="space-y-2">
               <h1 className="text-3xl font-extrabold text-primary tracking-tight font-headline">
                 Acceso Institucional
@@ -165,13 +148,11 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Login Card */}
           <LoginForm/>
           
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="w-full py-8 text-center border-t border-outline-variant/5">
         <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-50">
           © 2026 Instituto Tecnologico de Estudios Superiores de Monterrey.

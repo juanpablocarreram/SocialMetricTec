@@ -19,9 +19,9 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True, # Necesario para que el navegador acepte cabeceras de auth
-    allow_methods=["*"], # Métodos explícitos
-    allow_headers=["*"], # Headers específicos
+    allow_credentials=True, # requerido para que el navegador envíe cabeceras de autenticación
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 app.include_router(router_user)
 app.include_router(router_project)

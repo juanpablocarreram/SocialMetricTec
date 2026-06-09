@@ -6,7 +6,6 @@ import { listProjects, formatArea, ProjectSummary } from '@/src/services/project
 
 const SDG_GOALS = Array.from({ length: 17 }, (_, i) => i + 1);
 
-// Colores oficiales de cada ODS, para diferenciar cada proyecto por su área de impacto.
 const SDG_COLORS: Record<number, string> = {
   1: '#E5243B',  2: '#DDA63A',  3: '#4C9F38',  4: '#C5192D',  5: '#FF3A21',
   6: '#26BDE2',  7: '#FCC30B',  8: '#A21942',  9: '#FD6925', 10: '#DD1367',
@@ -35,7 +34,6 @@ export default function Home() {
     return acc;
   }, {});
 
-  // Las ODS con más proyectos (hasta 3, o las que haya si son menos).
   const topAreas = Object.entries(projectsPerArea)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
@@ -49,7 +47,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
       <section aria-labelledby="hero-heading" className="relative overflow-hidden bg-surface py-20 md:py-32 px-6 md:px-12">
         <div className="max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
           <motion.div
@@ -94,7 +91,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Metrics Section */}
       <section aria-labelledby="metrics-heading" className="bg-surface-container py-20 px-6 md:px-12">
         <h2 id="metrics-heading" className="sr-only">Métricas de impacto</h2>
         <div className="max-w-screen-2xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12">
@@ -133,7 +129,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Projects */}
       <section aria-labelledby="featured-heading" className="bg-surface py-24 md:py-32 px-6 md:px-12">
         <div className="max-w-screen-2xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
@@ -202,7 +197,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Impact Areas (ODS) */}
       <section aria-labelledby="ods-heading" className="bg-surface-container-low py-24 md:py-32 px-6 md:px-12">
         <div className="max-w-screen-2xl mx-auto">
           <div className="text-center mb-16 space-y-4">

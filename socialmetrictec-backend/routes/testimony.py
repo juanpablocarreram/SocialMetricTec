@@ -179,8 +179,6 @@ def _serialize(t):
     )
 
 
-# ─── Export (admin-only, on /testimonies/export) ─────────────────────────────
-
 export_router = APIRouter(prefix="/testimonies", tags=["testimonies"])
 
 
