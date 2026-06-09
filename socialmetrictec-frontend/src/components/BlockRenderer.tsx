@@ -300,9 +300,11 @@ export function BlockRenderer({
 
   if (type === 'divider') {
     return (
-      <section className="py-8 flex justify-center bg-white">
-        <div className="w-full max-w-4xl px-8">
-          <div className="h-px bg-outline-variant/20" />
+      <section className="py-10 flex justify-center bg-white">
+        <div className="w-full max-w-4xl px-8 flex items-center gap-6">
+          <div className="flex-1 h-0.5 bg-outline-variant/50 rounded-full" />
+          <div className="w-2 h-2 rounded-full bg-outline-variant/50 shrink-0" />
+          <div className="flex-1 h-0.5 bg-outline-variant/50 rounded-full" />
         </div>
       </section>
     );
