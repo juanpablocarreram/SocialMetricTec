@@ -223,7 +223,7 @@ export default function Home() {
                   transition={{ delay: rm ? 0 : (idx % 6) * 0.05 }}
                 >
                   <Link
-                    to="/directory"
+                    to={`/directory?area=${area}`}
                     aria-label={formatArea(area)}
                     className="block relative aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   >
@@ -239,7 +239,10 @@ export default function Home() {
                         {count}
                       </span>
                     )}
-                    <div className="absolute inset-0 bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-center p-3">
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-center p-3"
+                      style={{ backgroundColor: `${SDG_COLORS[goal]}CC` }}
+                    >
                       <span className="text-white text-sm font-bold leading-tight">{count} Proyecto{count !== 1 ? 's' : ''}</span>
                       <span className="text-white text-[10px] uppercase tracking-widest font-bold mt-1">Ver directorio</span>
                     </div>

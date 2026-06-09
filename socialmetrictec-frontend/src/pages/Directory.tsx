@@ -1,16 +1,17 @@
 import { motion, useReducedMotion } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Search, Filter, Calendar, ChevronDown, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/src/lib/utils';
 import { listProjects, formatArea, ProjectSummary } from '@/src/services/projectService';
 
 export default function Directory() {
+  const [searchParams] = useSearchParams();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [areaFilter, setAreaFilter] = useState('all');
+  const [areaFilter, setAreaFilter] = useState(searchParams.get('area') ?? 'all');
   const rm = useReducedMotion();
 
   useEffect(() => {
