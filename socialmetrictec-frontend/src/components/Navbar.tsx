@@ -99,7 +99,7 @@ export default function Navbar() {
                 aria-controls="project-listbox"
                 aria-label={currentProject ? `Proyecto actual: ${currentProject.name}` : 'Seleccionar proyecto'}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 border border-outline-variant/10 hover:bg-surface-container-low group',
+                  'flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 border border-outline-variant/10 hover:bg-surface-container-low group cursor-pointer',
                   isDropdownOpen ? 'bg-surface-container-low ring-2 ring-primary/20' : 'bg-transparent',
                 )}
               >
@@ -158,7 +158,7 @@ export default function Navbar() {
                               aria-selected={currentProject?.id === project.id}
                               onClick={() => { setCurrentProject(project); setIsDropdownOpen(false); }}
                               className={cn(
-                                'flex-1 flex items-center gap-3 p-3 rounded-xl transition-all group min-w-0',
+                                'flex-1 flex items-center gap-3 p-3 rounded-xl transition-all group min-w-0 cursor-pointer',
                                 currentProject?.id === project.id
                                   ? 'bg-primary/5 text-primary'
                                   : 'hover:bg-surface-container-low text-on-surface-variant',
@@ -183,7 +183,7 @@ export default function Navbar() {
                             </button>
                             <button
                               onClick={() => { setIsDropdownOpen(false); setEditingProjectId(Number(project.id)); }}
-                              className="p-2 rounded-xl text-outline-variant hover:text-primary hover:bg-surface-container-low transition-all shrink-0"
+                              className="p-2 rounded-xl text-outline-variant hover:text-primary hover:bg-surface-container-low transition-all shrink-0 cursor-pointer"
                               aria-label={`Editar ${project.name}`}
                               title="Editar información"
                             >
@@ -250,7 +250,7 @@ export default function Navbar() {
                 aria-haspopup="menu"
                 aria-label={user ? `Menú de perfil de ${user.username}` : 'Menú de perfil'}
                 className={cn(
-                  'flex items-center gap-2 p-1 rounded-full transition-all duration-300 hover:bg-surface-container-low group border border-transparent',
+                  'flex items-center gap-2 p-1 rounded-full transition-all duration-300 hover:bg-surface-container-low group border border-transparent cursor-pointer',
                   isProfileOpen ? 'bg-surface-container-low border-outline-variant/10 shadow-sm' : 'bg-transparent',
                 )}
               >
