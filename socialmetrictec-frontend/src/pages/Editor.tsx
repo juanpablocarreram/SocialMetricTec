@@ -486,9 +486,10 @@ function VideoSection({ section, onChange }: { section: Section; onChange: (s: P
 
 function DividerSection() {
   return (
-    <div className="py-2">
-      <div className="h-px bg-outline-variant/20 rounded-full" />
-      <p className="text-center text-[10px] text-outline/30 mt-3 uppercase tracking-widest">Línea separadora</p>
+    <div className="py-4 flex items-center gap-4">
+      <div className="flex-1 h-0.5 bg-outline-variant/40 rounded-full" />
+      <span className="text-[10px] font-bold uppercase tracking-widest text-outline/60 shrink-0 px-2">Separador</span>
+      <div className="flex-1 h-0.5 bg-outline-variant/40 rounded-full" />
     </div>
   );
 }
