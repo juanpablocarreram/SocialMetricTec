@@ -31,6 +31,16 @@ export interface ProjectCreate {
 
 export interface ProjectFull extends ProjectSummary {
   page: unknown | null;
+  objetivo?: string | null;
+}
+
+export interface ProjectInfoUpdate {
+  project_name?: string;
+  description?: string;
+  impact_area?: string;
+  cover_image_url?: string;
+  objetivo?: string;
+  numero_beneficiarios?: number;
 }
 
 export const AREA_LABELS: Record<string, string> = {
@@ -82,6 +92,11 @@ export const deleteProject = async (projectId: number): Promise<void> => {
 
 export const toggleProjectStatus = async (projectId: number): Promise<ProjectFull> => {
   const res = await api.patch(`/project/${projectId}/status`);
+  return res.data;
+};
+
+export const updateProjectInfo = async (projectId: number, data: ProjectInfoUpdate): Promise<ProjectFull> => {
+  const res = await api.patch(`/project/${projectId}/info`, data);
   return res.data;
 };
 

@@ -14,6 +14,7 @@ interface ProjectContextValue {
   currentProject: ProjectItem | null;
   loadingProjects: boolean;
   setCurrentProject: (p: ProjectItem) => void;
+  refreshProjects: () => void;
 }
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
@@ -23,6 +24,20 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [currentProject, setCurrentProject] = useState<ProjectItem | null>(null);
   const [loadingProjects, setLoadingProjects] = useState(true);
+
+  const refreshProjects = () => {
+    if (!user || user.is_admin) return;
+    getMyProjects()
+      .then((list) => {
+        setProjects(list.map((p) => ({
+          id: String(p.project_id),
+          name: p.project_name,
+          image: p.cover_image_url || '',
+          area: formatArea(p.impact_area),
+        })));
+      })
+      .catch(() => {});
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -49,7 +64,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <ProjectContext.Provider value={{ projects, currentProject, loadingProjects, setCurrentProject }}>
+    <ProjectContext.Provider value={{ projects, currentProject, loadingProjects, setCurrentProject, refreshProjects }}>
       {children}
     </ProjectContext.Provider>
   );

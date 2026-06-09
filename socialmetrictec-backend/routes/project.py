@@ -2,7 +2,7 @@ import os
 from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, status, Response, UploadFile
 from sqlalchemy.orm import Session
-from schemas.project import Project, ProjectFull, ProjectSummary
+from schemas.project import Project, ProjectFull, ProjectSummary, ProjectInfoUpdate
 from schemas.page import Page
 from schemas.media import MediaUploadResponse
 from schemas.user import UserOut, PublicLeader
@@ -15,6 +15,7 @@ from services.crud.project import (
     list_featured_projects,
     list_projects_for_user,
     toggle_featured_project,
+    update_project_info,
     update_project_page_in_db,
     toggle_project_status,
 )
@@ -74,6 +75,21 @@ def toggle_featured_project_route(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Ya hay 5 proyectos destacados. Elimina uno antes de agregar otro.",
         )
+    return result
+
+
+@router.patch("/{project_id}/info", response_model=ProjectFull)
+def update_project_info_route(
+    project_id: int,
+    data: ProjectInfoUpdate,
+    db: Session = Depends(get_db),
+    user: UserOut = Depends(get_current_user_from_token),
+):
+    result = update_project_info(db, project_id, data, user)
+    if result == "no_encontrado":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proyecto no encontrado.")
+    if result == "acceso_denegado":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para editar este proyecto.")
     return result
 
 

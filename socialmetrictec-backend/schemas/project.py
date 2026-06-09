@@ -40,3 +40,12 @@ class ProjectSummary(Project):
 
 class ProjectFull(ProjectSummary):
     page: Optional[Page] = None
+
+class ProjectInfoUpdate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    project_name: Optional[str] = None
+    description: Optional[str] = None
+    impact_area: Optional[ProjectAreas] = None
+    cover_image_url: Optional[str] = None
+    objetivo: Optional[str] = None
+    numero_beneficiarios: Optional[int] = None

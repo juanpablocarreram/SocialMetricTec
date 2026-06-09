@@ -4,9 +4,11 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import api from '@/src/lib/axios';
-import { ChevronDown, Plus, Check } from 'lucide-react';
+import { ChevronDown, Plus, Check, Pencil } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { useProject } from '../context/ProjectContext';
+import { formatArea, ProjectFull } from '@/src/services/projectService';
+import EditProjectModal from './EditProjectModal';
 
 
 export default function Navbar() {
@@ -16,7 +18,8 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
-  const { projects, currentProject, setCurrentProject } = useProject();
+  const { projects, currentProject, setCurrentProject, refreshProjects } = useProject();
+  const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -57,6 +60,18 @@ export default function Navbar() {
     if (name === 'Editor') return user && !user.is_admin;
     return true;
   });
+
+  const handleProjectSaved = (updated: ProjectFull) => {
+    refreshProjects();
+    if (currentProject?.id === String(updated.project_id)) {
+      setCurrentProject({
+        id: String(updated.project_id),
+        name: updated.project_name,
+        image: updated.cover_image_url,
+        area: formatArea(updated.impact_area),
+      });
+    }
+  };
 
   const userImage = user?.is_admin
     ? 'https://www.shutterstock.com/image-vector/simple-outline-user-configuration-setting-600nw-2636195015.jpg'
@@ -137,35 +152,44 @@ export default function Navbar() {
                       </div>
                       <div className="space-y-1 max-h-64 overflow-y-auto custom-scrollbar">
                         {projects.map((project) => (
-                          <button
-                            key={project.id}
-                            role="option"
-                            aria-selected={currentProject?.id === project.id}
-                            onClick={() => { setCurrentProject(project); setIsDropdownOpen(false); }}
-                            className={cn(
-                              'w-full flex items-center gap-3 p-3 rounded-xl transition-all group',
-                              currentProject?.id === project.id
-                                ? 'bg-primary/5 text-primary'
-                                : 'hover:bg-surface-container-low text-on-surface-variant',
-                            )}
-                          >
-                            {project.image ? (
-                              <img src={project.image} alt={project.name} className="w-10 h-10 rounded-full object-cover shadow-sm" />
-                            ) : (
-                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                                {project.name[0]}
+                          <div key={project.id} className="flex items-center gap-1">
+                            <button
+                              role="option"
+                              aria-selected={currentProject?.id === project.id}
+                              onClick={() => { setCurrentProject(project); setIsDropdownOpen(false); }}
+                              className={cn(
+                                'flex-1 flex items-center gap-3 p-3 rounded-xl transition-all group min-w-0',
+                                currentProject?.id === project.id
+                                  ? 'bg-primary/5 text-primary'
+                                  : 'hover:bg-surface-container-low text-on-surface-variant',
+                              )}
+                            >
+                              {project.image ? (
+                                <img src={project.image} alt={project.name} className="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                                  {project.name[0]}
+                                </div>
+                              )}
+                              <div className="text-left flex-grow truncate min-w-0">
+                                <p className="text-xs font-bold truncate">{project.name}</p>
+                                <p className="text-[9px] text-outline uppercase tracking-wider font-bold">{project.area}</p>
                               </div>
-                            )}
-                            <div className="text-left flex-grow truncate">
-                              <p className="text-xs font-bold truncate">{project.name}</p>
-                              <p className="text-[9px] text-outline uppercase tracking-wider font-bold">{project.area}</p>
-                            </div>
-                            {currentProject?.id === project.id && (
-                              <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-                                <Check aria-hidden="true" className="w-3 h-3 text-white" />
-                              </div>
-                            )}
-                          </button>
+                              {currentProject?.id === project.id && (
+                                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                                  <Check aria-hidden="true" className="w-3 h-3 text-white" />
+                                </div>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => { setIsDropdownOpen(false); setEditingProjectId(Number(project.id)); }}
+                              className="p-2 rounded-xl text-outline-variant hover:text-primary hover:bg-surface-container-low transition-all shrink-0"
+                              aria-label={`Editar ${project.name}`}
+                              title="Editar información"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         ))}
                       </div>
                       <div className="mt-2 pt-2 border-t border-outline-variant/5" />
@@ -278,6 +302,13 @@ export default function Navbar() {
           )}
         </div>
       </nav>
+      {editingProjectId !== null && (
+        <EditProjectModal
+          projectId={editingProjectId}
+          onClose={() => setEditingProjectId(null)}
+          onSaved={(updated) => { handleProjectSaved(updated); setEditingProjectId(null); }}
+        />
+      )}
     </header>
   );
 }

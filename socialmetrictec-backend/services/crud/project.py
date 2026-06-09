@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from models.project import Project, Manages
-from schemas.project import Project as ProjectSchema
+from schemas.project import Project as ProjectSchema, ProjectInfoUpdate as ProjectInfoUpdateSchema
 from schemas.page import Page
 from schemas.user import UserOut as UserOutSchema
 from services.crud.change_log import log_event
@@ -145,6 +145,34 @@ def toggle_project_status(db: Session, project_id: int, user: UserOutSchema):
     db.commit()
     db.refresh(project)
     return project
+
+
+def update_project_info(db: Session, project_id: int, data: ProjectInfoUpdateSchema, user: UserOutSchema):
+    project = db.query(Project).filter(Project.project_id == project_id).first()
+    if not project:
+        return "no_encontrado"
+
+    is_manager = db.query(Manages).filter(
+        Manages.project_id == project_id,
+        Manages.username == user.username,
+    ).first()
+    if not user.is_admin and not is_manager:
+        return "acceso_denegado"
+
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(project, field, value)
+
+    log_event(db, project_id, "info_updated")
+    try:
+        db.commit()
+        db.refresh(project)
+        return project
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ya existe un proyecto con ese nombre.",
+        )
 
 
 def list_featured_projects(db: Session):
