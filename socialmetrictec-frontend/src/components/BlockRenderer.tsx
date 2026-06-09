@@ -169,6 +169,15 @@ export function BlockRenderer({
               Aún no hay métricas registradas para este proyecto.
             </p>
           ) : (
+            <>
+              <div className="mb-12 text-center">
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: secondaryColor }}>
+                  Resultados cuantificables
+                </span>
+                <h2 className="text-3xl font-extrabold tracking-tighter mt-2" style={{ color: primaryColor }}>
+                  Métricas de Impacto
+                </h2>
+              </div>
             <div className="flex flex-wrap justify-center gap-12">
               {metrics.map((metric, idx) => (
                 <motion.div
@@ -200,6 +209,7 @@ export function BlockRenderer({
                 </motion.div>
               ))}
             </div>
+            </>
           )}
         </div>
       </section>
