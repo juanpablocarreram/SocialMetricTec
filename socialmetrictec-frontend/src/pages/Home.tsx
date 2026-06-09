@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, HeartPulse, CheckCircle2 } from 'lucide-react';
 import { listProjects, getFeaturedProjects, formatArea, ProjectSummary } from '@/src/services/projectService';
 
@@ -32,6 +32,16 @@ export default function Home() {
       .then(setFeaturedProjects)
       .catch(console.error);
   }, []);
+
+  const displayedFeatured = useMemo(() => {
+    const featuredIds = new Set(featuredProjects.map(p => p.project_id));
+    const needed = 5 - featuredProjects.length;
+    if (needed <= 0) return featuredProjects.slice(0, 5);
+    const candidates = projects.filter(p => !featuredIds.has(p.project_id));
+    const shuffled = [...candidates].sort(() => Math.random() - 0.5);
+    return [...featuredProjects, ...shuffled.slice(0, needed)];
+  }, [projects, featuredProjects]);
+
   const currentYear = new Date().getFullYear();
 
   const projectsPerArea = projects.reduce<Record<string, number>>((acc, project) => {
@@ -150,7 +160,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProjects.map((project, idx) => {
+            {displayedFeatured.map((project, idx) => {
               const accent = sdgColor(project.impact_area);
               return (
                 <motion.div
@@ -189,7 +199,7 @@ export default function Home() {
                 </motion.div>
               );
             })}
-            {featuredProjects.length === 0 && (
+            {projects.length === 0 && (
               <div className="sm:col-span-2 lg:col-span-4 py-16 text-center text-on-surface-variant">
                 Aún no hay proyectos publicados.{' '}
                 <Link to="/create-project" aria-label="Crear el primer proyecto" className="text-primary font-bold hover:underline">
