@@ -7,15 +7,11 @@ from routes.photo import router as router_photo
 from routes.milestone import router as router_milestone
 from routes.media import router as router_media
 import models
+import os
 from fastapi.middleware.cors import CORSMiddleware
 
-# 1. Definimos los orígenes de confianza
-# En desarrollo: localhost. En producción: el dominio del Tec.
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://socialmetrictec.tec.mx", # Ejemplo de dominio real futuro
-]
+_raw = os.getenv("ALLOWED_ORIGINS", "")
+origins = [o.strip() for o in _raw.split(",") if o.strip()]
 
 app = FastAPI()
 
