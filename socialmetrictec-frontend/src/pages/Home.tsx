@@ -33,6 +33,15 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
+  useEffect(() => {
+    const reload = () => {
+      listProjects().then(setProjects).catch(console.error);
+      getFeaturedProjects().then(setFeaturedProjects).catch(console.error);
+    };
+    window.addEventListener('project-updated', reload);
+    return () => window.removeEventListener('project-updated', reload);
+  }, []);
+
   const displayedFeatured = useMemo(() => {
     const featuredIds = new Set(featuredProjects.map(p => p.project_id));
     const needed = 5 - featuredProjects.length;

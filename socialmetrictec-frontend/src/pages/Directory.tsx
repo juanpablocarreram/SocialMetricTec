@@ -21,6 +21,12 @@ export default function Directory() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const reload = () => listProjects().then(setProjects).catch(console.error);
+    window.addEventListener('project-updated', reload);
+    return () => window.removeEventListener('project-updated', reload);
+  }, []);
+
   const uniqueAreas = Array.from(new Set(projects.map((p) => p.impact_area)));
 
   const filteredProjects = projects.filter((p) => {

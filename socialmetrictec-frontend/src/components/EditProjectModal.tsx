@@ -113,6 +113,7 @@ export default function EditProjectModal({ projectId, onClose, onSaved }: Props)
         cover_image_url: form.image,
       });
       setSaved(true);
+      window.dispatchEvent(new CustomEvent('project-updated'));
       onSaved(updated);
       setTimeout(() => onClose(), 1200);
     } catch (err: any) {
