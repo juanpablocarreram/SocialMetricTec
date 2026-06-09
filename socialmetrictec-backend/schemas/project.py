@@ -36,6 +36,7 @@ class Project(BaseModel):
 class ProjectSummary(Project):
     project_id: int
     created_at: datetime
+    is_featured: bool = False
 
 class ProjectFull(ProjectSummary):
     page: Optional[Page] = None

@@ -19,11 +19,12 @@ import {
   ToggleLeft,
   ToggleRight,
   Printer,
+  Star,
 } from 'lucide-react';
 import api from '../lib/axios';
 import { cn } from '@/src/lib/utils';
 import PasswordInput from '../components/PasswordInput';
-import { type ProjectSummary, listProjects, deleteProject, formatArea, toggleProjectStatus } from '@/src/services/projectService';
+import { type ProjectSummary, listProjects, deleteProject, formatArea, toggleProjectStatus, toggleProjectFeatured } from '@/src/services/projectService';
 
 interface User {
   username: string;
@@ -75,6 +76,8 @@ export default function AdminPanel() {
   const [deletingProject, setDeletingProject] = useState(false);
   const [projectDeleteError, setProjectDeleteError] = useState('');
   const [togglingProjectId, setTogglingProjectId] = useState<number | null>(null);
+  const [togglingFeaturedId, setTogglingFeaturedId] = useState<number | null>(null);
+  const [featuredError, setFeaturedError] = useState('');
 
   useEffect(() => {
     api.get('/user/users-preview')
@@ -325,6 +328,25 @@ export default function AdminPanel() {
     }
   };
 
+  const handleToggleFeatured = async (projectId: number) => {
+    setTogglingFeaturedId(projectId);
+    setFeaturedError('');
+    try {
+      const updated = await toggleProjectFeatured(projectId);
+      setProjectList((prev) =>
+        prev.map((p) => p.project_id === projectId ? { ...p, is_featured: updated.is_featured } : p)
+      );
+    } catch (err: any) {
+      if (err?.response?.status === 422) {
+        setFeaturedError('Límite alcanzado: ya hay 5 proyectos destacados. Quita uno antes de añadir otro.');
+      } else {
+        setFeaturedError(err?.response?.data?.detail || 'No se pudo actualizar el estado destacado.');
+      }
+    } finally {
+      setTogglingFeaturedId(null);
+    }
+  };
+
   return (
     <div className="flex min-h-[calc(100vh-64px)] bg-surface-container-lowest">
       <aside className="w-64 bg-white border-r border-outline-variant/10 p-6 space-y-8 hidden md:block">
@@ -496,6 +518,53 @@ export default function AdminPanel() {
             </p>
           </div>
 
+          <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-sm p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                <h2 className="text-sm font-extrabold text-primary uppercase tracking-widest">Proyectos Destacados</h2>
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200/60">
+                {projectList.filter((p) => p.is_featured).length} / 5
+              </span>
+            </div>
+            {projectList.filter((p) => p.is_featured).length === 0 ? (
+              <p className="text-xs text-outline italic">Ningún proyecto marcado como destacado.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {projectList.filter((p) => p.is_featured).map((p) => (
+                  <div
+                    key={p.project_id}
+                    className="flex items-center gap-2 bg-amber-50 border border-amber-200/60 rounded-xl px-3 py-2"
+                  >
+                    <span className="text-xs font-bold text-amber-700 truncate max-w-[180px]">{p.project_name}</span>
+                    <button
+                      onClick={() => handleToggleFeatured(p.project_id)}
+                      disabled={togglingFeaturedId === p.project_id}
+                      aria-label={`Quitar ${p.project_name} de destacados`}
+                      className="text-amber-400 hover:text-red-400 transition-colors disabled:opacity-50 cursor-pointer"
+                    >
+                      {togglingFeaturedId === p.project_id
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        : <X className="w-3.5 h-3.5" />
+                      }
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {featuredError && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-3 bg-red-50 border border-red-200/60 rounded-2xl p-4 text-red-600"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <p className="text-xs font-medium tracking-wide">{featuredError}</p>
+              </motion.div>
+            )}
+          </div>
+
           <div className="bg-white rounded-[32px] border border-outline-variant/10 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-outline-variant/5 flex items-center gap-4 bg-surface-container-lowest">
               <div className="relative flex-grow">
@@ -560,6 +629,22 @@ export default function AdminPanel() {
                             {project.is_active ? 'Activo' : 'Inactivo'}
                           </span>
                           <div className="flex items-center gap-1 opacity-100 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => handleToggleFeatured(project.project_id)}
+                              disabled={togglingFeaturedId === project.project_id}
+                              aria-label={project.is_featured ? 'Quitar de destacados' : 'Marcar como destacado'}
+                              title={project.is_featured ? 'Quitar de destacados' : 'Marcar como destacado'}
+                              className={`p-2 rounded-lg transition-all hover:cursor-pointer disabled:opacity-50 ${
+                                project.is_featured
+                                  ? 'text-amber-400 hover:text-amber-500 hover:bg-amber-50'
+                                  : 'text-outline/40 hover:text-amber-400 hover:bg-amber-50'
+                              }`}
+                            >
+                              {togglingFeaturedId === project.project_id
+                                ? <Loader2 className="w-4 h-4 animate-spin" />
+                                : <Star className={`w-4 h-4 ${project.is_featured ? 'fill-amber-400' : ''}`} />
+                              }
+                            </button>
                             <button
                               onClick={() => window.open(`/project/${project.project_id}/report`, '_blank')}
                               aria-label={`Descargar reporte de ${project.project_name}`}

@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { ArrowRight, HeartPulse, CheckCircle2 } from 'lucide-react';
-import { listProjects, formatArea, ProjectSummary } from '@/src/services/projectService';
+import { listProjects, getFeaturedProjects, formatArea, ProjectSummary } from '@/src/services/projectService';
 
 const SDG_GOALS = Array.from({ length: 17 }, (_, i) => i + 1);
 
@@ -19,6 +19,7 @@ const sdgColor = (area: string): string =>
 export default function Home() {
   const rm = useReducedMotion();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [featuredProjects, setFeaturedProjects] = useState<ProjectSummary[]>([]);
 
   useEffect(() => {
     listProjects()
@@ -26,7 +27,11 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
-  const featuredProjects = projects.slice(0, 4);
+  useEffect(() => {
+    getFeaturedProjects()
+      .then(setFeaturedProjects)
+      .catch(console.error);
+  }, []);
   const currentYear = new Date().getFullYear();
 
   const projectsPerArea = projects.reduce<Record<string, number>>((acc, project) => {

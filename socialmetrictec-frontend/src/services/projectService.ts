@@ -14,6 +14,7 @@ export interface ProjectSummary {
   impact_area: string;
   cover_image_url: string;
   is_active: boolean;
+  is_featured: boolean;
   numero_beneficiarios: number;
   created_at: string;
 }
@@ -81,5 +82,15 @@ export const deleteProject = async (projectId: number): Promise<void> => {
 
 export const toggleProjectStatus = async (projectId: number): Promise<ProjectFull> => {
   const res = await api.patch(`/project/${projectId}/status`);
+  return res.data;
+};
+
+export const getFeaturedProjects = async (): Promise<ProjectSummary[]> => {
+  const res = await api.get('/project/featured');
+  return res.data;
+};
+
+export const toggleProjectFeatured = async (projectId: number): Promise<ProjectFull> => {
+  const res = await api.patch(`/project/${projectId}/featured`);
   return res.data;
 };

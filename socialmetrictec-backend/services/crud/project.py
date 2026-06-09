@@ -72,6 +72,7 @@ def list_all_projects(db: Session):
         Project.impact_area,
         Project.cover_image_url,
         Project.is_active,
+        Project.is_featured,
         Project.numero_beneficiarios,
         Project.created_at,
     ).all()
@@ -93,6 +94,7 @@ def list_projects_for_user(db: Session, user: UserOutSchema):
         Project.impact_area,
         Project.cover_image_url,
         Project.is_active,
+        Project.is_featured,
         Project.numero_beneficiarios,
         Project.created_at,
     ).filter(Project.project_id.in_(managed_ids)).all()
@@ -140,6 +142,29 @@ def toggle_project_status(db: Session, project_id: int, user: UserOutSchema):
     project.is_active = not project.is_active
     event_type = "project_activated" if project.is_active else "project_deactivated"
     log_event(db, project_id, event_type)
+    db.commit()
+    db.refresh(project)
+    return project
+
+
+def list_featured_projects(db: Session):
+    return db.query(Project).filter(Project.is_featured == True).all()
+
+
+def toggle_featured_project(db: Session, project_id: int, user: UserOutSchema):
+    if not user.is_admin:
+        return "acceso_denegado"
+
+    project = db.query(Project).filter(Project.project_id == project_id).first()
+    if not project:
+        return "no_encontrado"
+
+    if not project.is_featured:
+        featured_count = db.query(Project).filter(Project.is_featured == True).count()
+        if featured_count >= 5:
+            return "limite_alcanzado"
+
+    project.is_featured = not project.is_featured
     db.commit()
     db.refresh(project)
     return project

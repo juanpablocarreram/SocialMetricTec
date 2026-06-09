@@ -12,7 +12,9 @@ from services.crud.project import (
     delete_project_in_db,
     get_project_from_db,
     list_all_projects,
+    list_featured_projects,
     list_projects_for_user,
+    toggle_featured_project,
     update_project_page_in_db,
     toggle_project_status,
 )
@@ -43,6 +45,36 @@ def list_my_projects(
 async def create_project(project_info:Project,db = Depends(get_db),user : UserOut = Depends(get_current_user_from_token)):
     created_project = create_project_in_db(db,project_info,user)
     return created_project
+
+
+@router.get("/featured", response_model=list[ProjectSummary])
+def list_featured_projects_route(db: Session = Depends(get_db)):
+    return list_featured_projects(db)
+
+
+@router.patch("/{project_id}/featured", response_model=ProjectFull)
+def toggle_featured_project_route(
+    project_id: int,
+    db: Session = Depends(get_db),
+    user: UserOut = Depends(get_current_user_from_token),
+):
+    result = toggle_featured_project(db, project_id, user)
+    if result == "acceso_denegado":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo los administradores pueden marcar proyectos como destacados.",
+        )
+    if result == "no_encontrado":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Proyecto no encontrado.",
+        )
+    if result == "limite_alcanzado":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Ya hay 5 proyectos destacados. Elimina uno antes de agregar otro.",
+        )
+    return result
 
 
 @router.get("/{id_project}", response_model=ProjectFull)

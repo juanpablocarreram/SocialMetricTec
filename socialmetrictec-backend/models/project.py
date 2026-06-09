@@ -31,6 +31,7 @@ class Project(Base):
     impact_area = Column(String(255), nullable=True) 
     cover_image_url = Column(String(2048), nullable=True)
     is_active = Column(Boolean, nullable=False, default=True)
+    is_featured = Column(Boolean, nullable=False, default=False)
     page = Column(JSON, nullable=True)
     objetivo = Column(Text, nullable=True)
     numero_beneficiarios = Column(Integer, nullable=False, default=0)
