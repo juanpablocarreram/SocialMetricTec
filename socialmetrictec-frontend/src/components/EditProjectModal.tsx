@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Loader2, AlertCircle, CloudUpload, Check } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { updateProjectInfo, formatArea, ProjectFull } from '@/src/services/projectService';
@@ -121,7 +122,7 @@ export default function EditProjectModal({ projectId, onClose, onSaved }: Props)
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[200] flex items-start justify-center overflow-y-auto py-8 px-4">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div
@@ -320,6 +321,7 @@ export default function EditProjectModal({ projectId, onClose, onSaved }: Props)
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
